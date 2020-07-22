@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_07_21_213341) do
+ActiveRecord::Schema.define(version: 2020_07_22_151345) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -87,7 +87,7 @@ ActiveRecord::Schema.define(version: 2020_07_21_213341) do
     t.string "cached_user_name"
     t.string "cached_user_username"
     t.string "canonical_url"
-    t.integer "collection_id"
+    t.bigint "collection_id"
     t.integer "comment_score", default: 0
     t.string "comment_template"
     t.integer "comments_count", default: 0, null: false
@@ -368,7 +368,7 @@ ActiveRecord::Schema.define(version: 2020_07_21_213341) do
     t.index ["user_id"], name: "index_classified_listings_on_user_id"
   end
 
-  create_table "collections", id: :serial, force: :cascade do |t|
+  create_table "collections", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.string "description"
     t.string "main_image"
