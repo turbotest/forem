@@ -9,67 +9,51 @@ import {
   LISTING_PAGE_SIZE,
   MATCH_LISTING,
   updateListings,
-  getQueryParams,
   resizeAllMasonryItems,
   getLocation,
 } from './utils';
 
 export class Listings extends Component {
-  state = {
-    listings: [],
-    query: '',
-    tags: [],
-    category: '',
-    allCategories: [],
-    initialFetch: true,
-    currentUserId: null,
-    openedListing: null,
-    message: '',
-    slug: null,
-    page: 0,
-    showNextPageButton: false,
-  };
-
-  componentWillMount() {
-    const params = getQueryParams();
-    const container = document.getElementById('listings-index-container');
-    const category = container.dataset.category || '';
-    const allCategories = JSON.parse(container.dataset.allcategories || []);
-    let tags = [];
-    let openedListing = null;
-    let slug = null;
-    let listings = [];
-
-    if (params.t) {
-      tags = params.t.split(',');
-    }
-
-    const query = params.q || '';
-
-    if (tags.length === 0 && query === '') {
-      listings = JSON.parse(container.dataset.listings);
-    }
-
-    if (container.dataset.displayedlisting) {
-      openedListing = JSON.parse(container.dataset.displayedlisting);
-      ({ slug } = openedListing);
-      document.body.classList.add('modal-open');
-    }
+  constructor(props) {
+    super(props);
 
     this.debouncedListingSearch = debounceAction(this.handleQuery.bind(this), {
       time: 150,
       config: { leading: true },
     });
 
-    this.setState({
+    const {
+      allCategories = [],
+      category,
+      listings = [],
+      openedListing = null,
+      tags = [],
+      query,
+    } = props;
+
+    if (openedListing) {
+      document.body.classList.add('modal-open');
+    }
+
+    this.state = {
+      listings,
       query,
       tags,
       category,
       allCategories,
-      listings,
+      initialFetch: true,
+      currentUserId: null,
       openedListing,
-      slug,
-    });
+      message: '',
+      slug: openedListing ? openedListing.slug : null,
+      page: 0,
+      showNextPageButton: false,
+    };
+  }
+
+  componentDidMount() {
+    const { query, tags, category, slug } = this.state;
+
     this.listingSearch(query, tags, category, slug);
     this.setUser();
 

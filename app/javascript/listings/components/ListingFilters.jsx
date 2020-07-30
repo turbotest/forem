@@ -16,7 +16,10 @@ const ListingFilters = ({
   query,
 }) => {
   return (
-    <aside className="crayons-layout__sidebar-left">
+    <aside
+      data-testid="listing-filters"
+      className="crayons-layout__sidebar-left"
+    >
       <ListingFiltersTags
         message={message}
         onKeyUp={onKeyUp}
