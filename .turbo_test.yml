@@ -9,18 +9,11 @@ install: |
   wget --quiet -O - https://artifacts.elastic.co/GPG-KEY-elasticsearch | sudo apt-key add -
   echo "deb https://artifacts.elastic.co/packages/oss-7.x/apt stable main" | sudo tee -a /etc/apt/sources.list.d/elastic-7.x.list
 
-  wget --quiet -O - https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add -
-  echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list
-
-  curl -sL https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add -
-  echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list
-
   sudo apt update -y
 
   time sudo apt install -y \
     build-essential gcc g++ make cmake unzip \
     libcurl4-openssl-dev libssl-dev \
-    nodejs yarn \
     postgresql postgresql-contrib libpq-dev \
     imagemagick \
     redis-server \
@@ -32,6 +25,7 @@ install: |
   [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
   source ~/.profile
   nvm install 12.16
+  npm install -g yarn
 
   sudo systemctl start elasticsearch
   sudo su postgres -c 'createuser kmcd --superuser'
