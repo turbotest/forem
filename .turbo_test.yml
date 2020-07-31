@@ -1,0 +1,71 @@
+env:
+  GITHUB_KEY: 1
+  GITHUB_SECRET: 1
+
+install: |
+  wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -
+  echo "deb http://apt.postgresql.org/pub/repos/apt/ `lsb_release -cs`-pgdg main" |sudo tee  /etc/apt/sources.list.d/pgdg.list
+
+  wget --quiet -O - https://artifacts.elastic.co/GPG-KEY-elasticsearch | sudo apt-key add -
+  echo "deb https://artifacts.elastic.co/packages/oss-7.x/apt stable main" | sudo tee -a /etc/apt/sources.list.d/elastic-7.x.list
+
+  wget --quiet -O - https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add -
+  echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list
+
+  curl -sL https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add -
+  echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list
+
+  sudo apt update -y
+
+  time sudo apt install -y \
+    build-essential gcc g++ make cmake unzip \
+    libcurl4-openssl-dev libssl-dev \
+    nodejs yarn \
+    postgresql postgresql-contrib libpq-dev \
+    imagemagick \
+    redis-server \
+    elasticsearch-oss
+
+  wget -qO- https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.3/install.sh | bash
+  export NVM_DIR="$HOME/.nvm"
+  [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+  [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+  source ~/.profile
+  nvm install 12.16
+
+  sudo systemctl start elasticsearch
+  sudo su postgres -c 'createuser kmcd --superuser'
+
+  wget -O ruby-install-0.7.0.tar.gz https://github.com/postmodern/ruby-install/archive/v0.7.0.tar.gz
+  tar -xzvf ruby-install-0.7.0.tar.gz
+  cd ruby-install-0.7.0
+  sudo make install
+  cd ..
+  rm -Rf ruby-install*
+
+  wget -O chruby-0.3.9.tar.gz https://github.com/postmodern/chruby/archive/v0.3.9.tar.gz
+  tar -xzvf chruby-0.3.9.tar.gz
+  cd chruby-0.3.9/
+  sudo make install
+  cd ..
+  rm -Rf chruby-0.3.*
+
+  time ruby-install ruby 2.7.1 --no-reinstall
+
+  echo "source /usr/local/share/chruby/chruby.sh" >> ~/.bashrc
+  echo "source /usr/local/share/chruby/auto.sh" >> ~/.bashrc
+  source /usr/local/share/chruby/chruby.sh
+  chruby 2.7.1
+
+  echo "gem: --no-document" >> ~/.gemrc
+  gem install bundler
+  time ./bin/setup
+
+setup: |
+  bundle install
+
+test_suite:
+  command: bundle exec rspec
+
+  files:
+    - spec/**/*_spec.rb
