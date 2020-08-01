@@ -1,8 +1,12 @@
 env:
   GITHUB_KEY: 1
   GITHUB_SECRET: 1
-  APP_DOMAIN: "localhost:3000"
+  APP_DOMAIN: "example.com:3000"
   APP_PROTOCOL: "http://"
+  SECRET_KEY_BASE: 'abc'
+  SENDGRID_USERNAME_ACCEL: 'abc'
+  SENDGRID_PASSWORD_ACCEL: 'abc'
+  HEROKU_APP_URL: "example.com"
 
 install: |
   sudo add-apt-repository ppa:apt-fast/stable
