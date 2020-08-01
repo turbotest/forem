@@ -5,7 +5,7 @@ env:
 install: |
   sudo add-apt-repository ppa:apt-fast/stable
   sudo apt update -y
-  
+
   echo debconf apt-fast/maxdownloads string 16 | debconf-set-selections
   echo debconf apt-fast/dlflag boolean true | debconf-set-selections
   echo debconf apt-fast/aptmanager string apt-get | debconf-set-selections
@@ -32,6 +32,8 @@ install: |
     redis-server \
     elasticsearch-oss \
     nodejs yarn
+
+  yarn config set ignore-engines true
 
   sudo systemctl start elasticsearch
   sudo su postgres -c 'createuser kmcd --superuser'
