@@ -1,6 +1,8 @@
 env:
   GITHUB_KEY: 1
   GITHUB_SECRET: 1
+  APP_DOMAIN: "localhost:3000"
+  APP_PROTOCOL: "http://"
 
 install: |
   sudo add-apt-repository ppa:apt-fast/stable
@@ -61,6 +63,7 @@ install: |
 
   echo "gem: --no-document" >> ~/.gemrc
   gem install bundler
+  cp config/sample_application.yml config/application.yml
   time ./bin/setup
 
 setup: |
