@@ -3,6 +3,14 @@ env:
   GITHUB_SECRET: 1
 
 install: |
+  sudo add-apt-repository ppa:apt-fast/stable
+  sudo apt update -y
+  
+  echo debconf apt-fast/maxdownloads string 16 | debconf-set-selections
+  echo debconf apt-fast/dlflag boolean true | debconf-set-selections
+  echo debconf apt-fast/aptmanager string apt-get | debconf-set-selections
+  sudo apt-get -y install apt-fast
+
   wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -
   echo "deb http://apt.postgresql.org/pub/repos/apt/ `lsb_release -cs`-pgdg main" |sudo tee  /etc/apt/sources.list.d/pgdg.list
 
