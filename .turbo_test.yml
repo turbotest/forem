@@ -71,7 +71,7 @@ install: |
   bundle config --local cache_all true
   bundle config --local cache_all_platforms true
   bundle install
-  rails db:create:all
+  rails db:create
   rails db:schema:load
   RAILS_ENV='test' rails search:setup
 
