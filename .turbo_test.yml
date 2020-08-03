@@ -1,12 +1,13 @@
 env:
+  APP_DOMAIN: 'example.com:3000'
+  APP_PROTOCOL: 'http://'
   GITHUB_KEY: 1
   GITHUB_SECRET: 1
-  APP_DOMAIN: "example.com:3000"
-  APP_PROTOCOL: "http://"
-  SECRET_KEY_BASE: 'abc'
-  SENDGRID_USERNAME_ACCEL: 'abc'
-  SENDGRID_PASSWORD_ACCEL: 'abc'
   HEROKU_APP_URL: "example.com"
+  RAILS_ENV: 'test'
+  SECRET_KEY_BASE: 'abc'
+  SENDGRID_PASSWORD_ACCEL: 'abc'
+  SENDGRID_USERNAME_ACCEL: 'abc'
 
 install: |
   sudo add-apt-repository ppa:apt-fast/stable
@@ -66,9 +67,12 @@ install: |
   chruby 2.7.1
 
   echo "gem: --no-document" >> ~/.gemrc
-  gem install bundler
-  cp config/sample_application.yml config/application.yml
-  time ./bin/setup
+  gem install bundler --conservative
+  bundle config --local cache_all true
+  bundle config --local cache_all_platforms true
+  bundle install
+  rails db:schema:load
+  RAILS_ENV='test' rails search:setup
 
 setup: |
   bundle install
