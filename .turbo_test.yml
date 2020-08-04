@@ -38,7 +38,8 @@ install: |
     imagemagick \
     redis-server \
     elasticsearch-oss \
-    nodejs yarn
+    nodejs yarn \
+    chromium-chromedriver
 
   yarn config set ignore-engines true
 
@@ -62,9 +63,8 @@ install: |
   time ruby-install ruby 2.7.1 --no-reinstall
 
   echo "source /usr/local/share/chruby/chruby.sh" >> ~/.bash_profile
-  echo "source /usr/local/share/chruby/auto.sh" >> ~/.bash_profile
-  source /usr/local/share/chruby/chruby.sh
-  chruby 2.7.1
+  echo "chruby 2.7.1" >> ~/.bash_profile
+  source ~/.bash_profile
 
   echo "gem: --no-document" >> ~/.gemrc
   gem install bundler --conservative
