@@ -88,7 +88,7 @@ setup: |
   bundle exec rails webpacker:compile
 
 test_suite:
-  command: echo $REDIS_URL ; ls
+  command: bundle exec rspec
 
   files:
-    - spec/models/credit_spec.rb
+    - spec/**/*_spec.rb
