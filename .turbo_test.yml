@@ -76,10 +76,10 @@ install: |
   bundle config set path 'vendor/bundle'
   bundle install --local --jobs=4
 
-  rails db:create
-  rails db:schema:load
-  rails search:setup
-  rails webdrivers:chromedriver:update
+  bundle exec rails db:create
+  bundle exec rails db:schema:load
+  bundle exec rails search:setup
+  bundle exec rails webdrivers:chromedriver:update
 
   yarn install --frozen-lockfile
   bundle exec rails webpacker:compile
