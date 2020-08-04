@@ -78,6 +78,7 @@ install: |
   bundle exec rails search:setup
   bundle exec rails webdrivers:chromedriver:update
 
+  sudo chown -R ubuntu /usr/local/lib/node_modules
   npm install -g yarn
   yarn install --frozen-lockfile
   bundle exec rails webpacker:compile
