@@ -42,10 +42,8 @@ install: |
     imagemagick \
     redis-server \
     elasticsearch-oss \
-    nodejs yarn \
+    nodejs \
     chromium-chromedriver
-
-  yarn config set ignore-engines true
 
   sudo systemctl start elasticsearch
   sudo su postgres -c 'createuser ubuntu --superuser'
@@ -73,18 +71,19 @@ install: |
   echo "gem: --no-document" >> ~/.gemrc
   gem install bundler
   bundle config set path 'vendor/bundle'
-  bundle install --local --jobs=4
+  bundle install --deployment --jobs 4 --retry 3 --without development production
 
   bundle exec rails db:create
   bundle exec rails db:schema:load
   bundle exec rails search:setup
   bundle exec rails webdrivers:chromedriver:update
 
+  npm install -g yarn
   yarn install --frozen-lockfile
   bundle exec rails webpacker:compile
 
 setup: |
-  bundle install
+  bundle install --deployment --jobs 4 --retry 3 --without development production
   bundle exec rails webpacker:compile
 
 test_suite:
