@@ -42,7 +42,7 @@ install: |
     imagemagick \
     redis-server \
     elasticsearch-oss \
-    nodejs npm \
+    nodejs \
     chromium-chromedriver
 
   sudo systemctl start elasticsearch
