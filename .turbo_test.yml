@@ -1,17 +1,7 @@
 env:
   RAILS_ENV: test
-  CC_TEST_REPORTER_ID: f39e060a8b1a558ebd8aff75d5b9760bf1ae98f3f85d628ae28814f3c66438cd
   APP_PROTOCOL: http://
   APP_DOMAIN: localhost:3000
-  TIMBER: dummy
-  SEND_LOGS_TO_TIMBER: false
-  SENDGRID_USERNAME_ACCEL: dummy
-  SENDGRID_PASSWORD_ACCEL: dummy
-  HEROKU_APP_URL: practicaldev.herokuapp.com
-  SECRET_KEY_BASE: dummydummydummy
-  GITHUB_KEY: dummy
-  GITHUB_SECRET: dummy
-  COVERAGE_REPORTS_TOTAL: 4
 
 install: |
   sudo apt update -y
@@ -33,9 +23,7 @@ install: |
     imagemagick \
     redis-server \
     elasticsearch-oss \
-    chromium-chromedriver libnss3 xdg-utils
-
-  sudo snap install chromium
+    chromium-chromedriver libnss3 xdg-utils google-chrome-stable
 
   sudo systemctl enable elasticsearch
   sudo systemctl start elasticsearch
@@ -58,10 +46,7 @@ install: |
   echo "gem: --no-document" >> ~/.gemrc
   gem install bundler
 
-  bundle config set with 'development test'
-  bundle config set path 'vendor/bundle'
-
-  bundle install --jobs 4 --retry 3
+  bundle install
   bundle exec rails db:create
   bundle exec rails db:schema:load
   bundle exec rails search:setup
@@ -72,8 +57,11 @@ install: |
   RAILS_ENV=test bundle exec rails webdrivers:chromedriver:update
 
 setup: |
-  bundle install --deployment --jobs 4 --retry 3 --without development production
+  bundle install
+  bundle exec rails db:migrate
+  yarn install --ignore-engines
   bundle exec rails webpacker:compile
+  RAILS_ENV=test bundle exec rails webdrivers:chromedriver:update
 
 test_suite:
   command: bundle exec rspec
