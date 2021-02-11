@@ -32,7 +32,7 @@ install: |
   wget -qO- https://raw.githubusercontent.com/nvm-sh/nvm/v0.36.0/install.sh | bash
   export NVM_DIR="$HOME/.nvm"
   [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-  nvm install 12.16
+  nvm install 14.14
   npm install -g yarn
 
   sudo apt-add-repository -y ppa:rael-gc/rvm
