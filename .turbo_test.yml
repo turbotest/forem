@@ -44,7 +44,7 @@ install: |
   sudo chown -R ubuntu /usr/share/rvm
   sudo usermod -a -G rvm ubuntu
   source /etc/profile.d/rvm.sh
-  rvm install "ruby-2.7.1"
+  rvm install "ruby-2.7.2"
 
   echo "gem: --no-document" >> ~/.gemrc
   gem install bundler
