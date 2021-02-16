@@ -1,9 +1,10 @@
-env:
-  RAILS_ENV: test
-  APP_PROTOCOL: http://
-  APP_DOMAIN: localhost:3000
-
 install: |
+  #!/bin/bash
+  set -ex
+  export DEBIAN_FRONTEND=noninteractive
+  echo 'debconf debconf/frontend select Noninteractive' | sudo debconf-set-selections
+  cd /build
+
   sudo apt update -y
   sudo apt install wget -y
 
@@ -37,6 +38,7 @@ install: |
   [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" --no-use
   nvm install 14.14
   npm install -g yarn
+  yarn install --ignore-engines
 
   sudo apt-add-repository -y ppa:rael-gc/rvm
   sudo apt-get update
@@ -46,8 +48,15 @@ install: |
   source /etc/profile.d/rvm.sh
   rvm install "ruby-2.7.2"
 
+  echo "source ~/.bashrc" >> ~/.bash_profile
+  echo "source ~/.nvm/nvm.sh" >> ~/.bash_profile
+  echo "nvm use 14.14" >> ~/.bash_profile
+  echo "source /etc/profile.d/rvm.sh" >> ~/.bash_profile
+
   echo "gem: --no-document" >> ~/.gemrc
   gem install bundler
+
+  cp .env_sample .env
 
   bundle install
   bundle exec rails db:create
@@ -55,14 +64,13 @@ install: |
   bundle exec rails search:setup
   bundle exec spring binstub --all
 
-  yarn install --ignore-engines
   bundle exec rails webpacker:compile
   RAILS_ENV=test bundle exec rails webdrivers:chromedriver:update
 
 setup: |
+  yarn install --ignore-engines
   bundle install
   bundle exec rails db:migrate
-  yarn install --ignore-engines
   bundle exec rails webpacker:compile
   RAILS_ENV=test bundle exec rails webdrivers:chromedriver:update
 
