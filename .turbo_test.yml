@@ -1,9 +1,5 @@
 install: |
-  #!/bin/bash
-  set -ex
-  export DEBIAN_FRONTEND=noninteractive
   echo 'debconf debconf/frontend select Noninteractive' | sudo debconf-set-selections
-  cd /build
 
   sudo apt update -y
   sudo apt install wget -y
