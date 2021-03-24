@@ -72,6 +72,9 @@ setup: |
   RAILS_ENV=test bundle exec rails webdrivers:chromedriver:update
 
 test_suite:
+  env:
+    COVERAGE: false
+
   command: bin/rspec
 
   files:
