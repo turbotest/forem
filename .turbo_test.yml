@@ -67,6 +67,7 @@ install: |
 setup: |
   yarn install --ignore-engines
   bundle install
+  bundle exec spring binstub --all
   bundle exec rails db:migrate
   bundle exec rails webpacker:compile
   RAILS_ENV=test bundle exec rails webdrivers:chromedriver:update
