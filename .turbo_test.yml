@@ -72,7 +72,7 @@ setup: |
   RAILS_ENV=test bundle exec rails webdrivers:chromedriver:update
 
 test_suite:
-  command: bundle exec rspec
+  command: bin/rspec
 
   files:
     # - spec/**/*_spec.rb
