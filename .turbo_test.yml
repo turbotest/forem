@@ -74,6 +74,7 @@ setup: |
 test_suite:
   env:
     COVERAGE: false
+    DISABLE_SPRING: true
 
   command: bundle exec rspec
 
