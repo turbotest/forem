@@ -77,7 +77,7 @@ test_suite:
   files:
     # - spec/**/*_spec.rb
     - spec/services/feeds/import_spec.rb
-    # - spec/models/user_spec.rb
+    - spec/models/user_spec.rb
     # - spec/requests/notifications_spec.rb
     # - spec/system/comments/user_fills_out_comment_spec.rb
     # - spec/models/article_spec.rb
