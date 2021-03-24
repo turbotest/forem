@@ -75,7 +75,7 @@ test_suite:
   env:
     COVERAGE: false
 
-  command: bin/spring rspec
+  command: bin/rspec
 
   files:
     # - spec/**/*_spec.rb
