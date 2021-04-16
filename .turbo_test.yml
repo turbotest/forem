@@ -1,5 +1,5 @@
 install: |
-  # clear_cache: 74de71bbad6199a48af49ba9a02d01ee
+  # clear_cache: 078fb894b0ba0879aa670b971a3dbb85
   echo 'debconf debconf/frontend select Noninteractive' | sudo debconf-set-selections
 
   sudo apt update -y
@@ -35,7 +35,6 @@ install: |
   [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" --no-use
   nvm install 14.14
   npm install -g yarn
-  yarn install --ignore-engines
 
   sudo apt-add-repository -y ppa:rael-gc/rvm
   sudo apt-get update
@@ -61,6 +60,7 @@ install: |
   bundle exec rails search:setup
   bundle exec spring binstub --all
 
+  yarn install --ignore-engines
   bundle exec rails webpacker:compile
   RAILS_ENV=test bundle exec rails webdrivers:chromedriver:update
 
