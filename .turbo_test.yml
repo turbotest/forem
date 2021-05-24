@@ -74,9 +74,8 @@ setup: |
 test_suite:
   env:
     COVERAGE: false
-    DISABLE_SPRING: true
 
-  command: bundle exec rspec
+  command: bin/rspec
 
   files:
     # - spec/**/*_spec.rb
