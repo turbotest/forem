@@ -13,19 +13,19 @@ SEEDS_MULTIPLIER = [1, ENV["SEEDS_MULTIPLIER"].to_i].max
 puts "Seeding with multiplication factor: #{SEEDS_MULTIPLIER}\n\n"
 
 ##############################################################################
-# Default development site config if different from production scenario
+# Default development settings are different from production scenario
 
-SiteConfig.public = true
-SiteConfig.waiting_on_first_user = false
-SiteConfig.authentication_providers = Authentication::Providers.available
+Settings::UserExperience.public = true
+Settings::General.waiting_on_first_user = false
+Settings::Authentication.providers = Authentication::Providers.available
 
 ##############################################################################
 
 # Put forem into "starter mode"
 
 if ENV["MODE"] == "STARTER"
-  SiteConfig.public = false
-  SiteConfig.waiting_on_first_user = true
+  Settings::UserExperience.public = false
+  Settings::General.waiting_on_first_user = true
   puts "Seeding forem in starter mode to replicate new creator experience"
   exit # We don't need any models if we're launching things from startup.
 end
@@ -147,7 +147,7 @@ seeder.create_if_doesnt_exist(User, "email", "admin@forem.local") do
   )
 
   user.add_role(:super_admin)
-  user.add_role(:single_resource_admin, Config)
+  user.add_role(:tech_admin)
 end
 
 ##############################################################################
@@ -333,7 +333,7 @@ seeder.create_if_none(Broadcast) do
     tags: welcome
     ---
 
-    Hey there! Welcome to #{SiteConfig.community_name}!
+    Hey there! Welcome to #{Settings::Community.community_name}!
 
     Leave a comment below to introduce yourself to the community!✌️
   HEREDOC
@@ -561,28 +561,17 @@ end
 
 puts <<-ASCII
 
-  ```````````````````````````````````````````````````````````````````````````
-  ```````````````````````````````````````````````````````````````````````````
-  ```````````````````````````````````````````````````````````````````````````
-  ```````````````````````````````````````````````````````````````````````````
-  ```````````````````````````````````````````````````````````````````````````
-  ``````````````-oooooooo/-``````.+ooooooooo:``+ooo+````````oooo/````````````
-  ``````````````+MMMMMMMMMMm+```-NMMMMMMMMMMs``+MMMM:``````/MMMM/````````````
-  ``````````````+MMMNyyydMMMMy``/MMMMyyyyyyy/```mMMMd``````mMMMd`````````````
-  ``````````````+MMMm````:MMMM.`/MMMN```````````/MMMM/````/MMMM:`````````````
-  ``````````````+MMMm````.MMMM-`/MMMN````````````dMMMm````mMMMh``````````````
-  ``````````````+MMMm````.MMMM-`/MMMMyyyy+```````:MMMM/``+MMMM-``````````````
-  ``````````````+MMMm````.MMMM-`/MMMMMMMMy````````hMMMm``NMMMy```````````````
-  ``````````````+MMMm````.MMMM-`/MMMMoooo:````````-MMMM+oMMMM-```````````````
-  ``````````````+MMMm````.MMMM-`/MMMN``````````````yMMMmNMMMy````````````````
-  ``````````````+MMMm````+MMMM.`/MMMN``````````````.MMMMMMMM.````````````````
-  ``````````````+MMMMdddNMMMMo``/MMMMddddddd+```````sMMMMMMs`````````````````
-  ``````````````+MMMMMMMMMNh:```.mMMMMMMMMMMs````````yMMMMs``````````````````
-  ``````````````.///////:-````````-/////////-`````````.::.```````````````````
-  ```````````````````````````````````````````````````````````````````````````
-  ```````````````````````````````````````````````````````````````````````````
-  ```````````````````````````````````````````````````````````````````````````
-  ```````````````````````````````````````````````````````````````````````````
+  ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+  ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+  ::::'########::'#######::'########::'########:'##::::'##::::
+  :::: ##.....::'##.... ##: ##.... ##: ##.....:: ###::'###::::
+  :::: ##::::::: ##:::: ##: ##:::: ##: ##::::::: ####'####::::
+  :::: ######::: ##:::: ##: ########:: ######::: ## ### ##::::
+  :::: ##...:::: ##:::: ##: ##.. ##::: ##...:::: ##. #: ##::::
+  :::: ##::::::: ##:::: ##: ##::. ##:: ##::::::: ##:.:: ##::::
+  :::: ##:::::::. #######:: ##:::. ##: ########: ##:::: ##::::
+  ::::..:::::::::.......:::..:::::..::........::..:::::..:::::
+  ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
   All done!
 ASCII

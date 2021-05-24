@@ -28,6 +28,7 @@ module GithubRepos
           stargazers_count: fetched_repo.stargazers_count,
           info_hash: fetched_repo.to_hash,
         )
+        repo.touch(:updated_at)
         if repo.user&.github_repos_updated_at&.before?(TOUCH_USER_COOLDOWN.ago)
           repo.user.touch(:github_repos_updated_at)
         end
@@ -35,6 +36,10 @@ module GithubRepos
              Github::Errors::Unauthorized,
              Github::Errors::AccountSuspended,
              Github::Errors::RepositoryUnavailable
+        repo.destroy
+      rescue Github::Errors::ClientError => e
+        raise e unless e.message.include?("Repository access blocked")
+
         repo.destroy
       end
     end

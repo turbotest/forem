@@ -27,7 +27,7 @@ RSpec.describe "StoriesIndex", type: :request do
     end
 
     def renders_proper_description
-      expect(response.body).to include(SiteConfig.community_description)
+      expect(response.body).to include(Settings::Community.community_description)
     end
 
     def renders_min_read_time
@@ -39,11 +39,11 @@ RSpec.describe "StoriesIndex", type: :request do
     end
 
     def renders_ga_tracking_data
-      expect(response.body).to include("data-ga-tracking=\"#{SiteConfig.ga_tracking_id}\"")
+      expect(response.body).to include("data-ga-tracking=\"#{Settings::General.ga_tracking_id}\"")
     end
 
-    it "renders registration page if site config is private" do
-      allow(SiteConfig).to receive(:public).and_return(false)
+    it "renders registration page if the Forem instance is private" do
+      allow(Settings::UserExperience).to receive(:public).and_return(false)
 
       get root_path
       expect(response.body).to include("Continue with")
@@ -105,7 +105,7 @@ RSpec.describe "StoriesIndex", type: :request do
     end
 
     it "does not set cache-related headers if private" do
-      allow(SiteConfig).to receive(:public).and_return(false)
+      allow(Settings::UserExperience).to receive(:public).and_return(false)
       get "/"
       expect(response.status).to eq(200)
 
@@ -132,13 +132,13 @@ RSpec.describe "StoriesIndex", type: :request do
     end
 
     it "shows default meta keywords if set" do
-      allow(SiteConfig).to receive(:meta_keywords).and_return({ default: "cool developers, civil engineers" })
+      allow(Settings::General).to receive(:meta_keywords).and_return({ default: "cool developers, civil engineers" })
       get "/"
       expect(response.body).to include("<meta name=\"keywords\" content=\"cool developers, civil engineers\">")
     end
 
     it "does not show default meta keywords if not set" do
-      allow(SiteConfig).to receive(:meta_keywords).and_return({ default: "" })
+      allow(Settings::General).to receive(:meta_keywords).and_return({ default: "" })
       get "/"
       expect(response.body).not_to include(
         "<meta name=\"keywords\" content=\"cool developers, civil engineers\">",
@@ -148,35 +148,17 @@ RSpec.describe "StoriesIndex", type: :request do
     it "shows only one cover if basic feed style" do
       create_list(:article, 3, featured: true, score: 20, main_image: "https://example.com/image.jpg")
 
-      allow(SiteConfig).to receive(:feed_style).and_return("basic")
+      allow(Settings::UserExperience).to receive(:feed_style).and_return("basic")
       get "/"
-      expect(response.body.scan(/(?=class="crayons-story__cover__image)/).count).to be 1
+      expect(response.body.scan(/(?=class="crayons-story__cover crayons-story__cover__image)/).count).to be 1
     end
 
     it "shows multiple cover images if rich feed style" do
       create_list(:article, 3, featured: true, score: 20, main_image: "https://example.com/image.jpg")
 
-      allow(SiteConfig).to receive(:feed_style).and_return("rich")
+      allow(Settings::UserExperience).to receive(:feed_style).and_return("rich")
       get "/"
-      expect(response.body.scan(/(?=class="crayons-story__cover__image)/).count).to be > 1
-    end
-
-    context "when user signed in" do
-      before do
-        sign_in user
-      end
-
-      it "has necessary asset reconciliation code" do
-        # Ensure code elements are available for fixing assets if necessary.
-        # app/views/layouts/_asset_reconciliation.html.erb
-        # Basic regression test to ensure we don't accidentally remove something we should not.
-        get "/"
-        expect(response.body).to include('<meta name="head-cached-at"')
-        expect(response.body).to include('<meta name="page-cached-at"')
-        expect(response.body).to include('"main-crayons-stylesheet"')
-        expect(response.body).to include('"main-minimal-stylesheet"')
-        expect(response.body).to include("if (headCacheCheck && headCrayons &&")
-      end
+      expect(response.body.scan(/(?=class="crayons-story__cover crayons-story__cover__image)/).count).to be > 1
     end
 
     context "with campaign hero" do
@@ -192,21 +174,21 @@ RSpec.describe "StoriesIndex", type: :request do
       end
 
       it "displays hero html when it exists and is set in config" do
-        allow(SiteConfig).to receive(:campaign_hero_html_variant_name).and_return("hero")
+        allow(Settings::Campaign).to receive(:hero_html_variant_name).and_return("hero")
 
         get root_path
         expect(response.body).to include(hero_html.html)
       end
 
-      it "doesn't display when campaign_hero_html_variant_name is not set" do
-        allow(SiteConfig).to receive(:campaign_hero_html_variant_name).and_return("")
+      it "doesn't display when hero_html_variant_name is not set" do
+        allow(Settings::Campaign).to receive(:hero_html_variant_name).and_return("")
 
         get root_path
         expect(response.body).not_to include(hero_html.html)
       end
 
       it "doesn't display when hero html is not approved" do
-        allow(SiteConfig).to receive(:campaign_hero_html_variant_name).and_return("hero")
+        allow(Settings::Campaign).to receive(:hero_html_variant_name).and_return("hero")
         hero_html.update_column(:approved, false)
 
         get root_path
@@ -216,62 +198,62 @@ RSpec.describe "StoriesIndex", type: :request do
 
     context "with campaign_sidebar" do
       before do
-        allow(SiteConfig).to receive(:campaign_featured_tags).and_return("shecoded,theycoded")
-        allow(SiteConfig).to receive(:home_feed_minimum_score).and_return(7)
+        allow(Settings::Campaign).to receive(:featured_tags).and_return("mytag,yourtag")
+        allow(Settings::UserExperience).to receive(:home_feed_minimum_score).and_return(7)
 
-        a_body = "---\ntitle: Super-sheep#{rand(1000)}\npublished: true\ntags: heyheyhey,shecoded\n---\n\nHello"
+        a_body = "---\ntitle: Super-sheep#{rand(1000)}\npublished: true\ntags: heyheyhey,mytag\n---\n\nHello"
         create(:article, approved: true, body_markdown: a_body, score: 1)
-        u_body = "---\ntitle: Unapproved-post#{rand(1000)}\npublished: true\ntags: heyheyhey,shecoded\n---\n\nHello"
+        u_body = "---\ntitle: Unapproved-post#{rand(1000)}\npublished: true\ntags: heyheyhey,mytag\n---\n\nHello"
         create(:article, approved: false, body_markdown: u_body, score: 1)
       end
 
       it "doesn't display posts with the campaign tags when sidebar is disabled" do
-        allow(SiteConfig).to receive(:campaign_sidebar_enabled).and_return(false)
+        allow(Settings::Campaign).to receive(:sidebar_enabled).and_return(false)
         get "/"
         expect(response.body).not_to include(CGI.escapeHTML("Super-sheep"))
       end
 
       it "doesn't display low-score posts" do
-        allow(SiteConfig).to receive(:campaign_sidebar_enabled).and_return(true)
-        allow(SiteConfig).to receive(:campaign_articles_require_approval).and_return(true)
+        allow(Settings::Campaign).to receive(:sidebar_enabled).and_return(true)
+        allow(Settings::Campaign).to receive(:articles_require_approval).and_return(true)
         get "/"
         expect(response.body).not_to include(CGI.escapeHTML("Unapproved-post"))
       end
 
       it "doesn't display unapproved posts" do
-        allow(SiteConfig).to receive(:campaign_sidebar_enabled).and_return(true)
-        allow(SiteConfig).to receive(:campaign_sidebar_image).and_return("https://example.com/image.png")
-        allow(SiteConfig).to receive(:campaign_articles_require_approval).and_return(true)
+        allow(Settings::Campaign).to receive(:sidebar_enabled).and_return(true)
+        allow(Settings::Campaign).to receive(:sidebar_image).and_return("https://example.com/image.png")
+        allow(Settings::Campaign).to receive(:articles_require_approval).and_return(true)
         Article.last.update_column(:score, -2)
         get "/"
         expect(response.body).not_to include(CGI.escapeHTML("Unapproved-post"))
       end
 
       it "displays unapproved post if approval is not required" do
-        allow(SiteConfig).to receive(:campaign_sidebar_enabled).and_return(true)
-        allow(SiteConfig).to receive(:campaign_sidebar_image).and_return("https://example.com/image.png")
-        allow(SiteConfig).to receive(:campaign_articles_require_approval).and_return(false)
+        allow(Settings::Campaign).to receive(:sidebar_enabled).and_return(true)
+        allow(Settings::Campaign).to receive(:sidebar_image).and_return("https://example.com/image.png")
+        allow(Settings::Campaign).to receive(:articles_require_approval).and_return(false)
         get "/"
         expect(response.body).to include(CGI.escapeHTML("Unapproved-post"))
       end
 
       it "displays only approved posts with the campaign tags" do
-        allow(SiteConfig).to receive(:campaign_sidebar_enabled).and_return(false)
+        allow(Settings::Campaign).to receive(:sidebar_enabled).and_return(false)
         get "/"
         expect(response.body).not_to include(CGI.escapeHTML("Super-puper"))
       end
 
-      it "displays sidebar url if campaign_url is set" do
-        allow(SiteConfig).to receive(:campaign_sidebar_enabled).and_return(true)
-        allow(SiteConfig).to receive(:campaign_url).and_return("https://campaign-lander.com")
-        allow(SiteConfig).to receive(:campaign_sidebar_image).and_return("https://example.com/image.png")
+      it "displays sidebar url if url is set" do
+        allow(Settings::Campaign).to receive(:sidebar_enabled).and_return(true)
+        allow(Settings::Campaign).to receive(:url).and_return("https://campaign-lander.com")
+        allow(Settings::Campaign).to receive(:sidebar_image).and_return("https://example.com/image.png")
         get "/"
         expect(response.body).to include('<a href="https://campaign-lander.com"')
       end
 
       it "does not display sidebar url if image is not present is set" do
-        allow(SiteConfig).to receive(:campaign_sidebar_enabled).and_return(true)
-        allow(SiteConfig).to receive(:campaign_url).and_return("https://campaign-lander.com")
+        allow(Settings::Campaign).to receive(:sidebar_enabled).and_return(true)
+        allow(Settings::Campaign).to receive(:url).and_return("https://campaign-lander.com")
         get "/"
         expect(response.body).not_to include('<a href="https://campaign-lander.com"')
       end
@@ -381,13 +363,13 @@ RSpec.describe "StoriesIndex", type: :request do
     end
 
     it "shows meta keywords if set" do
-      allow(SiteConfig).to receive(:meta_keywords).and_return({ tag: "software engineering, ruby" })
+      allow(Settings::General).to receive(:meta_keywords).and_return({ tag: "software engineering, ruby" })
       get "/t/#{tag.name}"
       expect(response.body).to include("<meta name=\"keywords\" content=\"software engineering, ruby, #{tag.name}\">")
     end
 
     it "does not show meta keywords if not set" do
-      allow(SiteConfig).to receive(:meta_keywords).and_return({ tag: "" })
+      allow(Settings::General).to receive(:meta_keywords).and_return({ tag: "" })
       get "/t/#{tag.name}"
       expect(response.body).not_to include(
         "<meta name=\"keywords\" content=\"software engineering, ruby, #{tag.name}\">",
@@ -419,8 +401,8 @@ RSpec.describe "StoriesIndex", type: :request do
         expect(response.cookies["remember_user_token"]).not_to be nil
       end
 
-      it "renders properly even if site config is private" do
-        allow(SiteConfig).to receive(:public).and_return(false)
+      it "renders properly even if the Forem instance is private" do
+        allow(Settings::UserExperience).to receive(:public).and_return(false)
         get "/t/#{tag.name}"
         expect(response.body).to include("crayons-tabs__item crayons-tabs__item--current")
       end

@@ -54,6 +54,9 @@ package-lock.json
 #Jetbrains Tools
 .idea/
 
+#Nova from Panic
+.nova/
+
 #sitemap
 /public/sitemap.xml.gz
 
@@ -97,3 +100,4 @@ postcss_error.log
 
 # ripgrep ignore file
 .rgignore
+config/definitions.rb

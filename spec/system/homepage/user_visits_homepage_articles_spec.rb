@@ -19,7 +19,16 @@ RSpec.describe "User visits a homepage", type: :system do
         expect(page).to have_selector(".crayons-story--featured", visible: :visible)
       end
 
-      it "shows the main article readable date and time", js: true, stub_elasticsearch: true do
+      # Regression test for https://github.com/forem/forem/pull/12724
+      it "does not display a comment count of 0", js: true do
+        expect(page).to have_text("Add Comment")
+        expect(page).not_to have_text("0 comments")
+        article.update_column(:comments_count, 50)
+        visit "/"
+        expect(page).to have_text(/50\s*comments/)
+      end
+
+      it "shows the main article readable date and time", js: true do
         expect(page).to have_selector(".crayons-story--featured time", text: published_date)
         selector = ".crayons-story--featured time[datetime='#{timestamp}']"
         expect(page).to have_selector(selector)
@@ -39,7 +48,7 @@ RSpec.describe "User visits a homepage", type: :system do
         expect(page).to have_text(article2.title)
       end
 
-      it "shows all articles' dates and times", js: true, stub_elasticsearch: true do
+      it "shows all articles' dates and times", js: true do
         expect(page).to have_selector(".crayons-story time", text: published_date, count: 2)
         selector = ".crayons-story time[datetime='#{timestamp}']"
         expect(page).to have_selector(selector, count: 2)

@@ -1,6 +1,6 @@
 import { h } from 'preact';
 import PropTypes from 'prop-types';
-import { KeyboardShortcuts } from '../../shared/components/useKeyboardShortcuts';
+import { FocusTrap } from '../../shared/components/focusTrap';
 import { defaultChildrenPropTypes } from '../../common-prop-types';
 import { Button } from '@crayons';
 
@@ -33,61 +33,92 @@ const CloseIcon = () => (
   </svg>
 );
 
+/**
+ * A modal component which can be presented with or without an overlay.
+ * The modal is presented within a focus trap for accessibility purposes - please note that the selector used for the focusTrap must be unique on the given page, otherwise focus may be trapped on the wrong element.
+ *
+ * @param {Object} props
+ * @param {Array} props.children The content to be displayed inside the Modal. Can be provided by composition (see example).
+ * @param {string} props.size The desired modal size ('s', 'm' or 'default')
+ * @param {string} props.className Optional additional classnames to apply to the modal container
+ * @param {string} props.title The title to be displayed in the modal heading. If provided, a title bar with a close button will be displayed.
+ * @param {boolean} props.overlay Whether or not to show a semi-opaque overlay behind the modal
+ * @param {Function} props.onClose  Callback for any function to be executed on close button click or Escape
+ * @param {boolean} props.closeOnClickOutside Whether the modal should close if the user clicks outside of it
+ * @param {string} props.focusTrapSelector The CSS selector for where to trap the user's focus. This should be unique to the page in which the modal is presented.
+ * 
+ * @example
+ *  <Modal
+      overlay={true}
+      title="Example modal title"
+      onClose={cancelAction}
+      size="s"
+      focusTrapSelector="#window-modal"
+      closeOnClickOutside={false}
+      className=".additional-class-name"
+    >
+      <div>
+        <p>Some modal content</p>
+      </div>
+    </Modal>
+ */
 export const Modal = ({
   children,
   size = 'default',
   className,
   title,
-  overlay,
-  onClose,
+  overlay = true,
+  onClose = () => {},
+  closeOnClickOutside = false,
+  focusTrapSelector = '.crayons-modal',
 }) => {
-  const shortcuts = {
-    escape: onClose,
-  };
-
   return (
-    <div
-      data-testid="modal-container"
-      className={`crayons-modal${getAdditionalClassNames({
-        size,
-        className,
-      })}`}
+    <FocusTrap
+      onDeactivate={onClose}
+      clickOutsideDeactivates={closeOnClickOutside}
+      selector={focusTrapSelector}
     >
       <div
-        role="dialog"
-        aria-modal="true"
-        aria-label="modal"
-        className="crayons-modal__box"
+        data-testid="modal-container"
+        className={`crayons-modal${getAdditionalClassNames({
+          size,
+          className,
+        })}`}
       >
-        {title && (
-          <div className="crayons-modal__box__header">
-            <h2>{title}</h2>
-            <Button
-              icon={CloseIcon}
-              variant="ghost"
-              contentType="icon"
-              aria-label="Close"
-              onClick={onClose}
-            />
-            <KeyboardShortcuts shortcuts={shortcuts} />
-          </div>
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-label="modal"
+          className="crayons-modal__box"
+        >
+          {title && (
+            <div className="crayons-modal__box__header">
+              <h2>{title}</h2>
+              <Button
+                icon={CloseIcon}
+                variant="ghost"
+                contentType="icon"
+                aria-label="Close"
+                onClick={onClose}
+              />
+            </div>
+          )}
+          <div className="crayons-modal__box__body">{children}</div>
+        </div>
+        {overlay && (
+          <div
+            data-testid="modal-overlay"
+            className={`crayons-modal__overlay ${
+              closeOnClickOutside ? 'background-clickable' : ''
+            }`}
+          />
         )}
-        <div className="crayons-modal__box__body">{children}</div>
       </div>
-      {overlay && (
-        <div data-testid="modal-overlay" className="crayons-modal__overlay" />
-      )}
-    </div>
+    </FocusTrap>
   );
 };
 
 Modal.displayName = 'Modal';
-
-Modal.defaultProps = {
-  className: undefined,
-  overlay: true,
-  onClose: undefined,
-};
 
 Modal.propTypes = {
   children: defaultChildrenPropTypes.isRequired,
@@ -96,4 +127,5 @@ Modal.propTypes = {
   overlay: PropTypes.bool,
   onClose: PropTypes.func,
   size: PropTypes.oneOf(['default', 's', 'm']).isRequired,
+  focusTrapSelector: PropTypes.string,
 };

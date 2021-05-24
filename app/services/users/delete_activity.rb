@@ -2,13 +2,12 @@ module Users
   module DeleteActivity
     module_function
 
-    # If you're removing data that is in Elasticsearch, make sure to use
-    # .destroy_all to trigger the callback to remove the document(s)
     def call(user)
       delete_social_media(user)
       delete_profile_info(user)
       user.access_grants.delete_all
       user.access_tokens.delete_all
+      user.api_secrets.delete_all
       user.created_podcasts.update_all(creator_id: nil)
       user.blocker_blocks.delete_all
       user.blocked_blocks.delete_all

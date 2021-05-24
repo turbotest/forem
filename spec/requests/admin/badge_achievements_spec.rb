@@ -1,7 +1,7 @@
 require "rails_helper"
 require "requests/shared_examples/internal_policy_dependant_request"
 
-RSpec.describe "/admin/badges", type: :request do
+RSpec.describe "/admin/content_manager/badge_achievements", type: :request do
   let(:admin) { create(:user, :super_admin) }
   let!(:badge) { create(:badge, title: "Not 'Hello, world!'") }
   let(:params) do
@@ -16,10 +16,10 @@ RSpec.describe "/admin/badges", type: :request do
   end
 
   it_behaves_like "an InternalPolicy dependant request", Badge do
-    let(:request) { get "/admin/badges" }
+    let(:request) { get admin_badges_path }
   end
 
-  describe "POST /admin/badge_achievements/award_badges" do
+  describe "POST /admin/content_manager/badge_achievements/award_badges" do
     let(:user) { create(:user) }
     let(:user2) { create(:user) }
     let(:usernames_string) { "#{user.username}, #{user2.username}" }
@@ -28,6 +28,24 @@ RSpec.describe "/admin/badges", type: :request do
     before do
       sign_in admin
       allow(BadgeAchievements::BadgeAwardWorker).to receive(:perform_async)
+    end
+
+    context "when the user is a single resource admin" do
+      it "awards the badge" do
+        user.add_role(:single_resource_admin, BadgeAchievement)
+        sign_in user
+        allow(BadgeAchievements::BadgeAwardWorker).to receive(:perform_async)
+
+        post admin_badge_achievements_award_badges_path, params: {
+          badge: badge.slug,
+          usernames: usernames_string,
+          message_markdown: "you got a badge nice one"
+        }
+        expect(BadgeAchievements::BadgeAwardWorker).to have_received(:perform_async).with(
+          usernames_array, badge.slug, "you got a badge nice one"
+        )
+        expect(request.flash[:success]).to include("Badges are being rewarded. The task will finish shortly.")
+      end
     end
 
     it "awards badges" do
@@ -75,7 +93,7 @@ RSpec.describe "/admin/badges", type: :request do
     end
   end
 
-  describe "DELETE /admin/badge_achievements/:id" do
+  describe "DELETE /admin/content_manager/badge_achievements/:id" do
     let!(:badge_achievement) { create(:badge_achievement) }
 
     before do
@@ -84,9 +102,9 @@ RSpec.describe "/admin/badges", type: :request do
 
     it "deletes the badge_achievement" do
       expect do
-        delete "/admin/badge_achievements/#{badge_achievement.id}"
+        delete admin_badge_achievement_path(badge_achievement.id)
       end.to change { BadgeAchievement.all.count }.by(-1)
-      expect(response.body).to redirect_to "/admin/badge_achievements"
+      expect(response.body).to redirect_to admin_badge_achievements_path
     end
   end
 end

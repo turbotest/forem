@@ -2,16 +2,18 @@ class Comment < ApplicationRecord
   has_ancestry
   resourcify
 
+  include PgSearch::Model
   include Reactable
-  include Searchable
-
-  SEARCH_SERIALIZER = Search::CommentSerializer
-  SEARCH_CLASS = Search::FeedContent
 
   BODY_MARKDOWN_SIZE_RANGE = (1..25_000).freeze
+
   COMMENTABLE_TYPES = %w[Article PodcastEpisode].freeze
+
   TITLE_DELETED = "[deleted]".freeze
   TITLE_HIDDEN = "[hidden by post author]".freeze
+
+  # The date that we began limiting the number of user mentions in a comment.
+  MAX_USER_MENTION_LIVE_AT = Time.utc(2021, 3, 12).freeze
 
   belongs_to :commentable, polymorphic: true, optional: true
   belongs_to :user
@@ -22,7 +24,6 @@ class Comment < ApplicationRecord
   has_many :mentions, as: :mentionable, inverse_of: :mentionable, dependent: :destroy
   has_many :notifications, as: :notifiable, inverse_of: :notifiable, dependent: :delete_all
   has_many :notification_subscriptions, as: :notifiable, inverse_of: :notifiable, dependent: :destroy
-
   before_validation :evaluate_markdown, if: -> { body_markdown }
   before_save :set_markdown_character_count, if: :body_markdown
   before_save :synchronous_spam_score_check
@@ -39,6 +40,7 @@ class Comment < ApplicationRecord
   after_save :bust_cache
 
   validate :published_article, if: :commentable
+  validate :user_mentions_in_markdown
   validates :body_markdown, presence: true, length: { in: BODY_MARKDOWN_SIZE_RANGE }
   validates :body_markdown, uniqueness: { scope: %i[user_id ancestry commentable_id commentable_type] }
   validates :commentable_id, presence: true, if: :commentable_type
@@ -54,11 +56,21 @@ class Comment < ApplicationRecord
   after_create_commit :send_to_moderator
 
   after_commit :calculate_score, on: %i[create update]
-  after_commit :index_to_elasticsearch, on: %i[create update]
 
   after_update_commit :update_notifications, if: proc { |comment| comment.saved_changes.include? "body_markdown" }
 
-  after_commit :remove_from_elasticsearch, on: [:destroy]
+  pg_search_scope :search_comments,
+                  against: %i[body_markdown],
+                  using: {
+                    tsearch: {
+                      prefix: true,
+                      highlight: {
+                        StartSel: "<mark>",
+                        StopSel: "</mark>",
+                        MaxFragments: 2
+                      }
+                    }
+                  }
 
   scope :eager_load_serialized_data, -> { includes(:user, :commentable) }
 
@@ -119,9 +131,9 @@ class Comment < ApplicationRecord
 
   def readable_publish_date
     if created_at.year == Time.current.year
-      created_at.strftime("%b %e")
+      created_at.strftime("%b %-e")
     else
-      created_at.strftime("%b %e '%y")
+      created_at.strftime("%b %-e '%y")
     end
   end
 
@@ -248,18 +260,18 @@ class Comment < ApplicationRecord
 
   def synchronous_spam_score_check
     return unless
-      SiteConfig.spam_trigger_terms.any? { |term| Regexp.new(term.downcase).match?(title.downcase) }
+      Settings::RateLimit.spam_trigger_terms.any? { |term| Regexp.new(term.downcase).match?(title.downcase) }
 
     self.score = -1 # ensure notification is not sent if possibly spammy
   end
 
   def create_conditional_autovomits
     return unless
-      SiteConfig.spam_trigger_terms.any? { |term| Regexp.new(term.downcase).match?(title.downcase) } &&
+      Settings::RateLimit.spam_trigger_terms.any? { |term| Regexp.new(term.downcase).match?(title.downcase) } &&
         user.registered_at > 5.days.ago
 
     Reaction.create(
-      user_id: SiteConfig.mascot_user_id,
+      user_id: Settings::General.mascot_user_id,
       reactable_id: id,
       reactable_type: "Comment",
       category: "vomit",
@@ -267,9 +279,9 @@ class Comment < ApplicationRecord
 
     return unless Reaction.comment_vomits.where(reactable_id: user.comments.pluck(:id)).size > 2
 
-    user.add_role(:banned)
+    user.add_role(:suspended)
     Note.create(
-      author_id: SiteConfig.mascot_user_id,
+      author_id: Settings::General.mascot_user_id,
       noteable_id: user_id,
       noteable_type: "User",
       reason: "automatic_suspend",
@@ -301,6 +313,16 @@ class Comment < ApplicationRecord
 
   def published_article
     errors.add(:commentable_id, "is not valid.") if commentable_type == "Article" && !commentable.published
+  end
+
+  def user_mentions_in_markdown
+    return if created_at.present? && created_at.before?(MAX_USER_MENTION_LIVE_AT)
+
+    # The "mentioned-user" css is added by Html::Parser#user_link_if_exists
+    mentions_count = Nokogiri::HTML(processed_html).css(".mentioned-user").size
+    return if mentions_count <= Settings::RateLimit.mention_creation
+
+    errors.add(:base, "You cannot mention more than #{Settings::RateLimit.mention_creation} users in a comment!")
   end
 
   def record_field_test_event

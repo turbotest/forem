@@ -37,7 +37,25 @@ module Admin
       @user = User.find(params[:id])
       Credits::Manage.call(@user, user_params)
       add_note if user_params[:new_note]
-      redirect_to "/admin/users/#{params[:id]}"
+      redirect_to admin_user_path(params[:id])
+    end
+
+    def destroy
+      role = params[:role].to_sym
+      resource_type = params[:resource_type]
+
+      @user = User.find(params[:user_id])
+
+      response = ::Users::RemoveRole.call(user: @user,
+                                          role: role,
+                                          resource_type: resource_type,
+                                          admin: current_user)
+      if response.success
+        flash[:success] = "Role: #{role.to_s.humanize.titlecase} has been successfully removed from the user!"
+      else
+        flash[:danger] = response.error_message
+      end
+      redirect_to edit_admin_user_path(@user.id)
     end
 
     def user_status
@@ -48,14 +66,14 @@ module Admin
       rescue StandardError => e
         flash[:danger] = e.message
       end
-      redirect_to "/admin/users/#{@user.id}/edit"
+      redirect_to edit_admin_user_path(@user.id)
     end
 
     def export_data
       user = User.find(params[:id])
       send_to_admin = params[:send_to_admin].to_boolean
       if send_to_admin
-        email = SiteConfig.email_addresses[:contact]
+        email = ::Settings::General.email_addresses[:contact]
         receiver = "admin"
       else
         email = user.email
@@ -69,7 +87,7 @@ module Admin
     def banish
       Moderator::BanishUserWorker.perform_async(current_user.id, params[:id].to_i)
       flash[:success] = "This user is being banished in the background. The job will complete soon."
-      redirect_to "/admin/users/#{params[:id]}/edit"
+      redirect_to edit_admin_user_path(params[:id])
     end
 
     def full_delete
@@ -85,7 +103,7 @@ module Admin
       rescue StandardError => e
         flash[:danger] = e.message
       end
-      redirect_to "/admin/users"
+      redirect_to admin_users_path
     end
 
     def merge
@@ -96,7 +114,7 @@ module Admin
         flash[:danger] = e.message
       end
 
-      redirect_to "/admin/users/#{@user.id}/edit"
+      redirect_to edit_admin_user_path(@user.id)
     end
 
     def remove_identity
@@ -117,7 +135,7 @@ module Admin
       rescue StandardError => e
         flash[:danger] = e.message
       end
-      redirect_to "/admin/users/#{@user.id}/edit"
+      redirect_to edit_admin_user_path(@user.id)
     end
 
     def send_email
@@ -177,7 +195,7 @@ module Admin
     def user_params
       allowed_params = %i[
         new_note note_for_current_role user_status
-        pro merge_user_id add_credits remove_credits
+        merge_user_id add_credits remove_credits
         add_org_credits remove_org_credits
         organization_id identity_id
       ]

@@ -16,7 +16,7 @@ module Api
         title description main_image published_at crossposted_at social_image
         cached_tag_list slug path canonical_url comments_count
         public_reactions_count created_at edited_at last_comment_at published
-        updated_at video_thumbnail_url
+        updated_at video_thumbnail_url reading_time
       ].freeze
 
       SHOW_ATTRIBUTES_FOR_SERIALIZATION = [
@@ -71,9 +71,19 @@ module Api
       end
 
       def update
-        @article = Articles::Updater.call(@user, params[:id], article_params)
+        articles_relation = @user.has_role?(:super_admin) ? Article.includes(:user) : @user.articles
+        article = articles_relation.find(params[:id])
 
-        render "show", status: :ok
+        result = Articles::Updater.call(@user, article, article_params)
+
+        @article = result.article
+
+        if result.success
+          render "show", status: :ok
+        else
+          message = @article.errors_as_sentence
+          render json: { error: message, status: 422 }, status: :unprocessable_entity
+        end
       end
 
       def me

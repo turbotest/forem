@@ -8,6 +8,7 @@ module MarkdownProcessor
     ].freeze
 
     WORDS_READ_PER_MINUTE = 275.0
+    ALLOWED_ATTRIBUTES = %w[href src alt].freeze
 
     def initialize(content, source: nil, user: nil)
       @content = content
@@ -20,7 +21,8 @@ module MarkdownProcessor
       renderer = Redcarpet::Render::HTMLRouge.new(options)
       markdown = Redcarpet::Markdown.new(renderer, Constants::Redcarpet::CONFIG)
       catch_xss_attempts(@content)
-      escaped_content = escape_liquid_tags_in_codeblock(@content)
+      code_tag_content = convert_code_tags_to_triple_backticks(@content)
+      escaped_content = escape_liquid_tags_in_codeblock(code_tag_content)
       html = markdown.render(escaped_content)
       sanitized_content = sanitize_rendered_markdown(html)
       begin
@@ -51,10 +53,9 @@ module MarkdownProcessor
       markdown = Redcarpet::Markdown.new(renderer, Constants::Redcarpet::CONFIG)
       allowed_tags = %w[strong abbr aside em p h1 h2 h3 h4 h5 h6 i u b code pre
                         br ul ol li small sup sub img a span hr blockquote kbd]
-      allowed_attributes = %w[href strong em ref rel src title alt class]
-      ActionController::Base.helpers.sanitize markdown.render(@content),
+      ActionController::Base.helpers.sanitize(markdown.render(@content),
                                               tags: allowed_tags,
-                                              attributes: allowed_attributes
+                                              attributes: ALLOWED_ATTRIBUTES)
     end
 
     def evaluate_limited_markdown
@@ -63,10 +64,9 @@ module MarkdownProcessor
       renderer = Redcarpet::Render::HTMLRouge.new(hard_wrap: true, filter_html: false)
       markdown = Redcarpet::Markdown.new(renderer, Constants::Redcarpet::CONFIG)
       allowed_tags = %w[strong i u b em p br code]
-      allowed_attributes = %w[href strong em ref rel src title alt class]
-      ActionController::Base.helpers.sanitize markdown.render(@content),
+      ActionController::Base.helpers.sanitize(markdown.render(@content),
                                               tags: allowed_tags,
-                                              attributes: allowed_attributes
+                                              attributes: ALLOWED_ATTRIBUTES)
     end
 
     def evaluate_inline_limited_markdown
@@ -75,10 +75,9 @@ module MarkdownProcessor
       renderer = Redcarpet::Render::HTMLRouge.new(hard_wrap: true, filter_html: false)
       markdown = Redcarpet::Markdown.new(renderer, Constants::Redcarpet::CONFIG)
       allowed_tags = %w[strong i u b em code]
-      allowed_attributes = %w[href strong em ref rel src title alt class]
-      ActionController::Base.helpers.sanitize markdown.render(@content),
+      ActionController::Base.helpers.sanitize(markdown.render(@content),
                                               tags: allowed_tags,
-                                              attributes: allowed_attributes
+                                              attributes: ALLOWED_ATTRIBUTES)
     end
 
     def evaluate_listings_markdown
@@ -88,10 +87,9 @@ module MarkdownProcessor
       markdown = Redcarpet::Markdown.new(renderer, Constants::Redcarpet::CONFIG)
       allowed_tags = %w[strong abbr aside em p h4 h5 h6 i u b code pre
                         br ul ol li small sup sub a span hr blockquote kbd]
-      allowed_attributes = %w[href strong em ref rel src title alt class]
-      ActionController::Base.helpers.sanitize markdown.render(@content),
+      ActionController::Base.helpers.sanitize(markdown.render(@content),
                                               tags: allowed_tags,
-                                              attributes: allowed_attributes
+                                              attributes: ALLOWED_ATTRIBUTES)
     end
 
     def tags_used
@@ -111,7 +109,7 @@ module MarkdownProcessor
     def catch_xss_attempts(markdown)
       return unless markdown.match?(Regexp.union(BAD_XSS_REGEX))
 
-      raise ArgumentError, "Invalid markdown detected"
+      raise ArgumentError, "Invalid markdown detected!"
     end
 
     def escape_liquid_tags_in_codeblock(content)
@@ -125,6 +123,17 @@ module MarkdownProcessor
           "{% raw %}#{codeblock}{% endraw %}"
         end
       end
+    end
+
+    def convert_code_tags_to_triple_backticks(content)
+      # return content if there is not a <code> tag
+      return content unless /^<code>$/.match?(content)
+
+      # return content if there is a <pre> and <code> tag
+      return content if /<code>/.match?(content) && /<pre>/.match?(content)
+
+      # Convert all multiline code tags to triple backticks
+      content.gsub(%r{^</?code>$}, "\n```\n")
     end
 
     private

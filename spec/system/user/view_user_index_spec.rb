@@ -1,6 +1,6 @@
 require "rails_helper"
 
-RSpec.describe "User index", type: :system, stub_elasticsearch: true do
+RSpec.describe "User index", type: :system do
   let!(:user) { create(:user) }
   let!(:article) { create(:article, user: user) }
   let!(:other_article) { create(:article) }
@@ -34,7 +34,7 @@ RSpec.describe "User index", type: :system, stub_elasticsearch: true do
       end
 
       def shows_title
-        expect(page).to have_title("#{user.name} - #{SiteConfig.community_name}")
+        expect(page).to have_title("#{user.name} - #{Settings::Community.community_name}")
       end
 
       def shows_articles
@@ -63,9 +63,9 @@ RSpec.describe "User index", type: :system, stub_elasticsearch: true do
 
       def shows_comment_timestamp
         within("#substories .profile-comment-card .profile-comment-row:first-of-type") do
-          ts = comment.decorate.published_timestamp
-          timestamp_selector = ".comment-date time[datetime='#{ts}']"
-          expect(page).to have_selector(timestamp_selector)
+          iso8601_date_time = /^((\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})Z)$/
+          timestamp = page.find(".comment-date time")[:datetime]
+          expect(timestamp).to match(iso8601_date_time)
         end
       end
     end

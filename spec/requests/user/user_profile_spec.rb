@@ -56,13 +56,13 @@ RSpec.describe "UserProfiles", type: :request do
       expect { get "/#{user.username}" }.to raise_error(ActiveRecord::RecordNotFound)
     end
 
-    it "renders noindex meta if banned" do
-      user.add_role(:banned)
+    it "renders noindex meta if suspended" do
+      user.add_role(:suspended)
       get "/#{user.username}"
       expect(response.body).to include("<meta name=\"robots\" content=\"noindex\">")
     end
 
-    it "does not render noindex meta if not banned" do
+    it "does not render noindex meta if not suspended" do
       get "/#{user.username}"
       expect(response.body).not_to include("<meta name=\"robots\" content=\"noindex\">")
     end
@@ -89,6 +89,29 @@ RSpec.describe "UserProfiles", type: :request do
     it "does not render payment pointer if not set" do
       get "/#{user.username}"
       expect(response.body).not_to include "author-payment-pointer"
+    end
+
+    it "renders sidebar profile field elements in sidebar" do
+      create(:profile_field, label: "whoaaaa", display_area: "left_sidebar")
+      get "/#{user.username}"
+      # Ensure this comes after the start of the sidebar element
+      expect(response.body.split("Whoaaaa").first).to include "crayons-layout__sidebar-left"
+    end
+
+    it "does not render settings_only on page" do
+      create(:profile_field, label: "whoaaaa", display_area: "settings_only")
+      get "/#{user.username}"
+      expect(response.body).not_to include "Whoaaaa"
+    end
+
+    it "does not render special display header elements naively" do
+      user.location = "hawaii"
+      user.save
+      get "/#{user.username}"
+      # Does not include the word, but does include the SVG
+      expect(response.body).not_to include "<p>Location</p>"
+      expect(response.body).to include user.location
+      expect(response.body).to include "M18.364 17.364L12 23.728l-6.364-6.364a9 9 0 1112.728 0zM12 13a2 2 0 100-4 2 2 0"
     end
 
     context "when organization" do
@@ -168,14 +191,14 @@ RSpec.describe "UserProfiles", type: :request do
       end
 
       it "renders emoji in description of featured repository" do
-        GithubRepo.upsert(github_user, params)
+        GithubRepo.upsert(github_user, **params)
 
         get "/#{github_user.username}"
         expect(response.body).to include("A book bot 🤖")
       end
 
       it "does not show a non featured repository" do
-        GithubRepo.upsert(github_user, params.merge(featured: false))
+        GithubRepo.upsert(github_user, **params.merge(featured: false))
 
         get "/#{github_user.username}"
         expect(response.body).not_to include("A book bot 🤖")
@@ -192,13 +215,13 @@ RSpec.describe "UserProfiles", type: :request do
     it "redirects to admin" do
       user = create(:user)
       get "/#{user.username}/admin"
-      expect(response.body).to redirect_to "/admin/users/#{user.id}/edit"
+      expect(response.body).to redirect_to edit_admin_user_path(user.id)
     end
 
     it "redirects to moderate" do
       user = create(:user)
       get "/#{user.username}/moderate"
-      expect(response.body).to redirect_to "/admin/users/#{user.id}"
+      expect(response.body).to redirect_to admin_user_path(user.id)
     end
   end
 end

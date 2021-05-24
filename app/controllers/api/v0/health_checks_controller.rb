@@ -7,14 +7,6 @@ module Api
         render json: { message: "App is up!" }, status: :ok
       end
 
-      def search
-        if Search::Client.ping
-          render json: { message: "Search ping succeeded!" }, status: :ok
-        else
-          render json: { message: "Search ping failed!" }, status: :internal_server_error
-        end
-      end
-
       def database
         if ActiveRecord::Base.connected?
           render json: { message: "Database connected" }, status: :ok
@@ -38,13 +30,18 @@ module Api
 
         key = request.headers["health-check-token"]
 
-        return if key == SiteConfig.health_check_token
+        return if key == Settings::General.health_check_token
 
         error_unauthorized
       end
 
       def all_cache_instances_connected?
-        [ENV["REDIS_URL"], ENV["REDIS_SESSIONS_URL"], ENV["REDIS_SIDEKIQ_URL"]].compact.all? do |url|
+        [
+          ENV["REDIS_URL"],
+          ENV["REDIS_SESSIONS_URL"],
+          ENV["REDIS_SIDEKIQ_URL"],
+          ENV["REDIS_RPUSH_URL"],
+        ].compact.all? do |url|
           Redis.new(url: url).ping == "PONG"
         end
       end

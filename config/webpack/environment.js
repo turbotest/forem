@@ -22,6 +22,12 @@ environment.splitChunks((config) => {
         ...(config.resolve ? config.resolve.alias : {}),
         '@crayons': path.resolve(__dirname, '../../app/javascript/crayons'),
         '@utilities': path.resolve(__dirname, '../../app/javascript/utilities'),
+        '@components': path.resolve(
+          __dirname,
+          '../../app/javascript/shared/components',
+        ),
+        react: 'preact/compat',
+        'react-dom': 'preact/compat',
       },
     },
   };
@@ -43,7 +49,7 @@ if (process.env.HONEYBADGER_API_KEY && process.env.ASSETS_URL) {
       revision:
         process.env.RELEASE_FOOTPRINT ||
         process.env.HEROKU_SLUG_COMMIT ||
-        'master',
+        'main',
     }),
   );
 }

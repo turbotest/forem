@@ -28,6 +28,24 @@ RSpec.describe AuthenticationHelper, type: :helper do
     end
   end
 
+  describe "#signed_up_with" do
+    it "returns an authentication reminder when a user auths with a provider" do
+      providers = Authentication::Providers.available.last(2)
+      allow(Authentication::Providers).to receive(:enabled).and_return(providers)
+      allow(user).to receive(:identities).and_return(user.identities.where(provider: providers))
+
+      expect(helper.signed_up_with(user)).to match(/GitHub and Twitter/)
+      expect(helper.signed_up_with(user)).to match(/use any of those/)
+    end
+
+    it "returns an authentication reminder when a user signs up with email" do
+      allow(Authentication::Providers).to receive(:enabled).and_return([])
+
+      expect(helper.signed_up_with(user)).to match(/Email & Password/)
+      expect(helper.signed_up_with(user)).to match(/use that/)
+    end
+  end
+
   describe "#available_providers_array" do
     it "returns array of available providers in lowercase" do
       provider = Authentication::Providers.available.first
@@ -40,8 +58,8 @@ RSpec.describe AuthenticationHelper, type: :helper do
 
   describe "#authentication_provider_enabled?" do
     before do
-      allow(SiteConfig).to receive(:invite_only_mode).and_return(false)
-      allow(SiteConfig).to receive(:authentication_providers).and_return(%i[twitter github])
+      allow(Settings::Authentication).to receive(:invite_only_mode).and_return(false)
+      allow(Settings::Authentication).to receive(:providers).and_return(%i[twitter github])
     end
 
     it "returns true when a provider has been enabled" do
@@ -58,9 +76,9 @@ RSpec.describe AuthenticationHelper, type: :helper do
   describe "tooltip classes, attributes and content" do
     context "when invite-only-mode enabled and no enabled registration options" do
       before do
-        allow(SiteConfig).to receive(:invite_only_mode).and_return(true)
-        allow(SiteConfig).to receive(:authentication_providers).and_return([])
-        allow(SiteConfig).to receive(:allow_email_password_registration).and_return(false)
+        allow(Settings::Authentication).to receive(:invite_only_mode).and_return(true)
+        allow(Settings::Authentication).to receive(:providers).and_return([])
+        allow(Settings::Authentication).to receive(:allow_email_password_registration).and_return(false)
       end
 
       it "returns 'crayons-tooltip' class for relevant helpers" do

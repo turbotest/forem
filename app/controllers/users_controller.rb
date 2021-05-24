@@ -10,9 +10,11 @@ class UsersController < ApplicationController
   before_action :set_suggested_users, only: %i[index]
   before_action :initialize_stripe, only: %i[edit]
 
-  ALLOWED_USER_PARAMS = %i[last_onboarding_page].freeze
+  ALLOWED_USER_PARAMS = %i[last_onboarding_page username].freeze
   INDEX_ATTRIBUTES_FOR_SERIALIZATION = %i[id name username summary profile_image].freeze
   private_constant :INDEX_ATTRIBUTES_FOR_SERIALIZATION
+  REMOVE_IDENTITY_ERROR = "An error occurred. Please try again or send an email to: %<email>s".freeze
+  private_constant :REMOVE_IDENTITY_ERROR
 
   def index
     @users =
@@ -20,7 +22,7 @@ class UsersController < ApplicationController
       when "follow_suggestions"
         determine_follow_suggestions(current_user)
       when "sidebar_suggestions"
-        Suggester::Users::Sidebar.new(current_user, params[:tag]).suggest.sample(3)
+        Users::SuggestForSidebar.call(current_user, params[:tag]).sample(3)
       else
         User.none
       end
@@ -122,7 +124,7 @@ class UsersController < ApplicationController
       Users::DeleteWorker.perform_async(@user.id)
       sign_out @user
       flash[:global_notice] = "Your account deletion is scheduled. You'll be notified when it's deleted."
-      redirect_to root_path
+      redirect_to new_user_registration_path
     else
       flash[:settings_notice] = "Please, provide an email to delete your account"
       redirect_to user_settings_path("account")
@@ -132,7 +134,7 @@ class UsersController < ApplicationController
   def remove_identity
     set_current_tab("account")
 
-    error_message = "An error occurred. Please try again or send an email to: #{SiteConfig.email_addresses[:contact]}"
+    error_message = format(REMOVE_IDENTITY_ERROR, email: Settings::General.email_addresses[:contact])
     unless Authentication::Providers.enabled?(params[:provider])
       flash[:error] = error_message
       redirect_to user_settings_path(@tab)
@@ -165,19 +167,20 @@ class UsersController < ApplicationController
   end
 
   def onboarding_update
-    if params[:user]
-      sanitize_user_params
-      current_user.assign_attributes(params[:user].permit(ALLOWED_USER_PARAMS))
-      current_user.profile_updated_at = Time.current
-    end
-
-    if current_user.save && params[:profile]
-      update_result = Profiles::Update.call(current_user, { profile: profile_params })
-    end
-
-    current_user.saw_onboarding = true
     authorize User
-    render_update_response(update_result&.success?)
+    user_params = { saw_onboarding: true }
+
+    if params[:user]
+      if params.dig(:user, :username).blank?
+        return render_update_response(false, "Username cannot be blank")
+      end
+
+      sanitize_user_params
+      user_params.merge!(params[:user].permit(ALLOWED_USER_PARAMS))
+    end
+
+    update_result = Profiles::Update.call(current_user, { user: user_params, profile: profile_params })
+    render_update_response(update_result.success?, update_result.errors_as_sentence)
   end
 
   def onboarding_checkbox_update
@@ -295,7 +298,7 @@ class UsersController < ApplicationController
   end
 
   def set_suggested_users
-    @suggested_users = SiteConfig.suggested_users
+    @suggested_users = Settings::General.suggested_users
   end
 
   def default_suggested_users
@@ -303,21 +306,21 @@ class UsersController < ApplicationController
   end
 
   def determine_follow_suggestions(current_user)
-    return default_suggested_users if SiteConfig.prefer_manual_suggested_users? && default_suggested_users
+    return default_suggested_users if Settings::General.prefer_manual_suggested_users? && default_suggested_users
 
-    recent_suggestions = Suggester::Users::Recent.new(
+    recent_suggestions = Users::SuggestRecent.call(
       current_user,
       attributes_to_select: INDEX_ATTRIBUTES_FOR_SERIALIZATION,
-    ).suggest
+    )
 
     recent_suggestions.presence || default_suggested_users
   end
 
-  def render_update_response(success)
-    outcome = success ? "updated successfully" : "update failed"
+  def render_update_response(success, errors = nil)
+    status = success ? 200 : 422
 
     respond_to do |format|
-      format.json { render json: { outcome: outcome } }
+      format.json { render json: { errors: errors }, status: status }
     end
   end
 
@@ -376,7 +379,7 @@ class UsersController < ApplicationController
   end
 
   def profile_params
-    params[:profile].permit(Profile.attributes)
+    params[:profile] ? params[:profile].permit(Profile.attributes) : nil
   end
 
   def password_params

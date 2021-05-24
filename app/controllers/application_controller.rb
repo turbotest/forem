@@ -22,26 +22,42 @@ class ApplicationController < ActionController::Base
     error_too_many_requests(exc)
   end
 
-  PUBLIC_CONTROLLERS = %w[shell
-                          async_info
-                          ga_events
-                          service_worker
-                          omniauth_callbacks
-                          registrations
+  rescue_from ActionController::InvalidAuthenticityToken do
+    ForemStatsClient.increment(
+      "users.invalid_authenticity_token",
+      tags: ["controller_name:#{controller_name}", "path:#{request.fullpath}"],
+    )
+  end
+
+  PUBLIC_CONTROLLERS = %w[async_info
                           confirmations
+                          deep_links
+                          ga_events
+                          health_checks
                           invitations
+                          omniauth_callbacks
                           passwords
-                          health_checks].freeze
+                          registrations
+                          service_worker
+                          shell].freeze
   private_constant :PUBLIC_CONTROLLERS
+
+  CONTENT_CHANGE_PATHS = [
+    "/tags/onboarding", # Needs to change when suggested_tags is edited.
+    "/onboarding", # Page is cached at edge.
+    "/", # Page is cached at edge.
+  ].freeze
+  private_constant :CONTENT_CHANGE_PATHS
 
   def verify_private_forem
     return if controller_name.in?(PUBLIC_CONTROLLERS)
     return if self.class.module_parent.to_s == "Admin"
-    return if user_signed_in? || SiteConfig.public
+    return if user_signed_in? || Settings::UserExperience.public
 
     if api_action?
       authenticate!
     else
+      @user ||= User.new
       render template: "devise/registrations/new"
     end
   end
@@ -114,7 +130,7 @@ class ApplicationController < ActionController::Base
   end
 
   def raise_suspended
-    raise "SUSPENDED" if current_user&.banned
+    raise SuspendedError if current_user&.suspended?
   end
 
   def internal_navigation?
@@ -125,7 +141,7 @@ class ApplicationController < ActionController::Base
   def feed_style_preference
     # TODO: Future functionality will let current_user override this value with UX preferences
     # if current_user exists and has a different preference.
-    SiteConfig.feed_style
+    Settings::UserExperience.feed_style
   end
   helper_method :feed_style_preference
 
@@ -152,7 +168,7 @@ class ApplicationController < ActionController::Base
   end
 
   def initialize_stripe
-    Stripe.api_key = SiteConfig.stripe_api_key
+    Stripe.api_key = Settings::General.stripe_api_key
 
     return unless Rails.env.development? && Stripe.api_key.present?
 
@@ -170,21 +186,19 @@ class ApplicationController < ActionController::Base
   end
 
   def forward_to_app_config_domain
-    return unless request.get? && # Let's only redirect get requests for this purpose.
-      request.host == ENV["APP_DOMAIN"] && # If the request equals the original set domain, e.g. forem-x.forem.cloud.
-      ENV["APP_DOMAIN"] != SiteConfig.app_domain # If the app domain config has now been set, let's go there instead.
+    # Let's only redirect get requests for this purpose.
+    return unless request.get? &&
+      # If the request equals the original set domain, e.g. forem-x.forem.cloud.
+      request.host == ENV["APP_DOMAIN"] &&
+      # If the app domain config has now been set, let's go there instead.
+      ENV["APP_DOMAIN"] != Settings::General.app_domain
 
     redirect_to URL.url(request.fullpath)
   end
 
   def bust_content_change_caches
-    EdgeCache::Bust.call("/tags/onboarding") # Needs to change when suggested_tags is edited.
-    EdgeCache::Bust.call("/shell_top") # Cached at edge, sent to service worker.
-    EdgeCache::Bust.call("/shell_bottom") # Cached at edge, sent to service worker.
-    EdgeCache::Bust.call("/async_info/shell_version") # Checks if current users should be busted.
-    EdgeCache::Bust.call("/onboarding") # Page is cached at edge.
-    EdgeCache::Bust.call("/") # Page is cached at edge.
-    SiteConfig.admin_action_taken_at = Time.current # Used as cache key
+    EdgeCache::Bust.call(CONTENT_CHANGE_PATHS)
+    Settings::General.admin_action_taken_at = Time.current # Used as cache key
   end
 
   protected
