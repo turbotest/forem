@@ -79,8 +79,7 @@ test_suite:
   command: bin/rspec
 
   files:
-    # - spec/**/*_spec.rb
-    - spec/services/broadcasts/welcome_notification/generator_spec.rb
+    - spec/**/*_spec.rb
 
   ignore:
     - spec/factories/**/*.*
