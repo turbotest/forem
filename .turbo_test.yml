@@ -1,3 +1,8 @@
+env:
+  COVERAGE:           false
+  DATABASE_URL_TEST:  postgres:///Forem_test
+  RAILS_ENV:          test
+
 install: |
   # clear_cache: 078fb894b0ba0879aa670b971a3dbb85
   echo 'debconf debconf/frontend select Noninteractive' | sudo debconf-set-selections
@@ -51,27 +56,23 @@ install: |
   cp .env_sample .env
 
   bundle install
-  bundle exec rails db:create
-  bundle exec rails db:schema:load
-  bundle exec rails search:setup
   bundle exec spring binstub --all
 
+  bin/rails db:create
+  bin/rails db:schema:load
+  bin/rails webdrivers:chromedriver:update
+
   yarn install --ignore-engines
-  bundle exec rails webpacker:compile
-  RAILS_ENV=test bundle exec rails webdrivers:chromedriver:update
+  bin/rails webpacker:compile
 
 setup: |
   yarn install --ignore-engines
   bundle install
-  bundle exec rails db:migrate
-  bundle exec rails webpacker:compile
-  RAILS_ENV=test bundle exec rails webdrivers:chromedriver:update
+  bin/rails db:migrate
+  bin/rails webpacker:compile
+  bin/rails webdrivers:chromedriver:update
 
 test_suite:
-  env:
-    COVERAGE: false
-    DISABLE_SPRING: true
-
   command: bin/rspec
 
   files:
