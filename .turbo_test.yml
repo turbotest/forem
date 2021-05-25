@@ -4,7 +4,7 @@ env:
   RAILS_ENV:          test
 
 install: |
-  # clear_cache: 7cc56439518cad20b3530b554ddc6d98 (VM)
+  # clear_cache: e9f3dd5d1ef0b77637ef8a7aac333eec (VM)
   echo 'debconf debconf/frontend select Noninteractive' | sudo debconf-set-selections
 
   sudo apt update -y
