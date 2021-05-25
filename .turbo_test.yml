@@ -73,8 +73,10 @@ setup: |
   bin/rails webdrivers:chromedriver:update
 
 test_suite:
+  env:
+    DISABLE_SPRING: true
+
   command: bin/rspec
-  DISABLE_SPRING: true
 
   files:
     # - spec/**/*_spec.rb
