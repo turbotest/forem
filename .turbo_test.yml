@@ -74,6 +74,7 @@ setup: |
 
 test_suite:
   command: bin/rspec
+  DISABLE_SPRING: true
 
   files:
     # - spec/**/*_spec.rb
