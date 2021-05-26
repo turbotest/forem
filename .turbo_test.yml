@@ -73,13 +73,14 @@ setup: |
   bin/rails webdrivers:chromedriver:update
 
 test_suite:
-  env:
-    DISABLE_SPRING: true
+  # env:
+  #   DISABLE_SPRING: true
 
   command: bin/rspec
 
   files:
-    - spec/**/*_spec.rb
+    # - spec/**/*_spec.rb
+    -  spec/workers/slack/messengers/worker_spec.rb 
 
   ignore:
     - spec/factories/**/*.*
