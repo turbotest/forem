@@ -66,6 +66,7 @@ install: |
   bin/rails webpacker:compile
 
 setup: |
+  export DISABLE_SPRING=true
   yarn install --ignore-engines
   bundle install
   bin/rails db:migrate
