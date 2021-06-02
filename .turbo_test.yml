@@ -53,8 +53,6 @@ install: |
   echo "gem: --no-document" >> ~/.gemrc
   gem install bundler
 
-  cp .env_sample .env
-
   bundle install
   bundle exec spring binstub --all
 
@@ -66,7 +64,6 @@ install: |
   bin/rails webpacker:compile
 
 setup: |
-  export DISABLE_SPRING=true
   yarn install --ignore-engines
   bundle install
   bin/rails db:migrate
@@ -74,67 +71,65 @@ setup: |
   bin/rails webdrivers:chromedriver:update
 
 test_suite:
-  # env:
-  #   DISABLE_SPRING: true
-
   command: bin/rspec
 
   files:
     # - spec/**/*_spec.rb
-    -  spec/workers/slack/messengers/worker_spec.rb
-    # -  spec/workers/slack/messengers/worker_spec.rb
-    # -  spec/workers/slack/messengers/worker_spec.rb
-    # -  spec/workers/slack/messengers/worker_spec.rb
-    # -  spec/workers/slack/messengers/worker_spec.rb
-    # -  spec/workers/slack/messengers/worker_spec.rb
-    # -  spec/workers/slack/messengers/worker_spec.rb
-    # -  spec/workers/slack/messengers/worker_spec.rb
-    # -  spec/workers/slack/messengers/worker_spec.rb
-    # -  spec/workers/slack/messengers/worker_spec.rb
-    # -  spec/workers/slack/messengers/worker_spec.rb
-    # -  spec/workers/slack/messengers/worker_spec.rb
-    # -  spec/workers/slack/messengers/worker_spec.rb
-    # -  spec/workers/slack/messengers/worker_spec.rb
-    # -  spec/workers/slack/messengers/worker_spec.rb
-    # -  spec/workers/slack/messengers/worker_spec.rb
-    # -  spec/workers/slack/messengers/worker_spec.rb
-    # -  spec/workers/slack/messengers/worker_spec.rb
-    # -  spec/workers/slack/messengers/worker_spec.rb
-    # -  spec/workers/slack/messengers/worker_spec.rb
-    # -  spec/workers/slack/messengers/worker_spec.rb
-    # -  spec/workers/slack/messengers/worker_spec.rb
-    # -  spec/workers/slack/messengers/worker_spec.rb
-    # -  spec/workers/slack/messengers/worker_spec.rb
-    # -  spec/workers/slack/messengers/worker_spec.rb
-    # -  spec/workers/slack/messengers/worker_spec.rb
-    # -  spec/workers/slack/messengers/worker_spec.rb
-    # -  spec/workers/slack/messengers/worker_spec.rb
-    # -  spec/workers/slack/messengers/worker_spec.rb
-    # -  spec/workers/slack/messengers/worker_spec.rb
-    # -  spec/workers/slack/messengers/worker_spec.rb
-    # -  spec/workers/slack/messengers/worker_spec.rb
-    # -  spec/workers/slack/messengers/worker_spec.rb
-    # -  spec/workers/slack/messengers/worker_spec.rb
-    # -  spec/workers/slack/messengers/worker_spec.rb
-    # -  spec/workers/slack/messengers/worker_spec.rb
-    # -  spec/workers/slack/messengers/worker_spec.rb
-    # -  spec/workers/slack/messengers/worker_spec.rb
-    # -  spec/workers/slack/messengers/worker_spec.rb
-    # -  spec/workers/slack/messengers/worker_spec.rb
-    # -  spec/workers/slack/messengers/worker_spec.rb
-    # -  spec/workers/slack/messengers/worker_spec.rb
-    # -  spec/workers/slack/messengers/worker_spec.rb
-    # -  spec/workers/slack/messengers/worker_spec.rb
-    # -  spec/workers/slack/messengers/worker_spec.rb
-    # -  spec/workers/slack/messengers/worker_spec.rb
-    # -  spec/workers/slack/messengers/worker_spec.rb
-    # -  spec/workers/slack/messengers/worker_spec.rb
-    # -  spec/workers/slack/messengers/worker_spec.rb
-    # -  spec/workers/slack/messengers/worker_spec.rb
-    # -  spec/workers/slack/messengers/worker_spec.rb
-    # -  spec/workers/slack/messengers/worker_spec.rb
-    # -  spec/workers/slack/messengers/worker_spec.rb
-    # -  spec/workers/slack/messengers/worker_spec.rb
+    - spec/workers/slack/messengers/worker_spec.rb
+    - spec/workers/slack/messengers/worker_spec.rb
+    - spec/workers/slack/messengers/worker_spec.rb
+    - spec/workers/slack/messengers/worker_spec.rb
+    - spec/workers/slack/messengers/worker_spec.rb
+    - spec/workers/slack/messengers/worker_spec.rb
+    - spec/workers/slack/messengers/worker_spec.rb
+    - spec/workers/slack/messengers/worker_spec.rb
+    - spec/workers/slack/messengers/worker_spec.rb
+    - spec/workers/slack/messengers/worker_spec.rb
+    - spec/workers/slack/messengers/worker_spec.rb
+    - spec/workers/slack/messengers/worker_spec.rb
+    - spec/workers/slack/messengers/worker_spec.rb
+    - spec/workers/slack/messengers/worker_spec.rb
+    - spec/workers/slack/messengers/worker_spec.rb
+    - spec/workers/slack/messengers/worker_spec.rb
+    - spec/workers/slack/messengers/worker_spec.rb
+    - spec/workers/slack/messengers/worker_spec.rb
+    - spec/workers/slack/messengers/worker_spec.rb
+    - spec/workers/slack/messengers/worker_spec.rb
+    - spec/workers/slack/messengers/worker_spec.rb
+    - spec/workers/slack/messengers/worker_spec.rb
+    - spec/workers/slack/messengers/worker_spec.rb
+    - spec/workers/slack/messengers/worker_spec.rb
+    - spec/workers/slack/messengers/worker_spec.rb
+    - spec/workers/slack/messengers/worker_spec.rb
+    - spec/workers/slack/messengers/worker_spec.rb
+    - spec/workers/slack/messengers/worker_spec.rb
+    - spec/workers/slack/messengers/worker_spec.rb
+    - spec/workers/slack/messengers/worker_spec.rb
+    - spec/workers/slack/messengers/worker_spec.rb
+    - spec/workers/slack/messengers/worker_spec.rb
+    - spec/workers/slack/messengers/worker_spec.rb
+    - spec/workers/slack/messengers/worker_spec.rb
+    - spec/workers/slack/messengers/worker_spec.rb
+    - spec/workers/slack/messengers/worker_spec.rb
+    - spec/workers/slack/messengers/worker_spec.rb
+    - spec/workers/slack/messengers/worker_spec.rb
+    - spec/workers/slack/messengers/worker_spec.rb
+    - spec/workers/slack/messengers/worker_spec.rb
+    - spec/workers/slack/messengers/worker_spec.rb
+    - spec/workers/slack/messengers/worker_spec.rb
+    - spec/workers/slack/messengers/worker_spec.rb
+    - spec/workers/slack/messengers/worker_spec.rb
+    - spec/workers/slack/messengers/worker_spec.rb
+    - spec/workers/slack/messengers/worker_spec.rb
+    - spec/workers/slack/messengers/worker_spec.rb
+    - spec/workers/slack/messengers/worker_spec.rb
+    - spec/workers/slack/messengers/worker_spec.rb
+    - spec/workers/slack/messengers/worker_spec.rb
+    - spec/workers/slack/messengers/worker_spec.rb
+    - spec/workers/slack/messengers/worker_spec.rb
+    - spec/workers/slack/messengers/worker_spec.rb
+    - spec/workers/slack/messengers/worker_spec.rb
+    - spec/workers/slack/messengers/worker_spec.rb
 
   ignore:
     - spec/factories/**/*.*
