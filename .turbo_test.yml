@@ -27,109 +27,109 @@ install: |
     redis-server \
     chromium-chromedriver libnss3 xdg-utils google-chrome-stable
 
-  # sudo su postgres -c 'createuser ubuntu --superuser'
-  # sudo su -c 'echo "host all all 127.0.0.1/32 trust" >> /etc/postgresql/13/main/pg_hba.conf'
-  # sudo service postgresql restart
-  #
-  # bash <( wget -qO- https://raw.githubusercontent.com/nvm-sh/nvm/v0.37.2/install.sh )
-  # export NVM_DIR="$HOME/.nvm"
-  # [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" --no-use
-  # nvm install 14.14
-  # npm install -g yarn
-  #
-  # sudo apt-add-repository -y ppa:rael-gc/rvm
-  # sudo apt-get update
-  # sudo apt-get install rvm -y
-  # sudo chown -R ubuntu /usr/share/rvm
-  # sudo usermod -a -G rvm ubuntu
-  # source /etc/profile.d/rvm.sh
-  # rvm install "ruby-2.7.2"
-  #
-  # echo "source ~/.bashrc" >> ~/.bash_profile
-  # echo "source ~/.nvm/nvm.sh" >> ~/.bash_profile
-  # echo "nvm use 14.14" >> ~/.bash_profile
-  # echo "source /etc/profile.d/rvm.sh" >> ~/.bash_profile
-  #
-  # echo "gem: --no-document" >> ~/.gemrc
-  # gem install bundler
-  #
-  # bundle install
-  # bundle exec spring binstub --all
-  #
-  # bin/rails db:create
-  # bin/rails db:schema:load
-  # bin/rails webdrivers:chromedriver:update
-  #
-  # yarn install --ignore-engines
-  # bin/rails webpacker:compile
+  sudo su postgres -c 'createuser ubuntu --superuser'
+  sudo su -c 'echo "host all all 127.0.0.1/32 trust" >> /etc/postgresql/13/main/pg_hba.conf'
+  sudo service postgresql restart
+
+  bash <( wget -qO- https://raw.githubusercontent.com/nvm-sh/nvm/v0.37.2/install.sh )
+  export NVM_DIR="$HOME/.nvm"
+  [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" --no-use
+  nvm install 14.14
+  npm install -g yarn
+
+  sudo apt-add-repository -y ppa:rael-gc/rvm
+  sudo apt-get update
+  sudo apt-get install rvm -y
+  sudo chown -R ubuntu /usr/share/rvm
+  sudo usermod -a -G rvm ubuntu
+  source /etc/profile.d/rvm.sh
+  rvm install "ruby-2.7.2"
+
+  echo "source ~/.bashrc" >> ~/.bash_profile
+  echo "source ~/.nvm/nvm.sh" >> ~/.bash_profile
+  echo "nvm use 14.14" >> ~/.bash_profile
+  echo "source /etc/profile.d/rvm.sh" >> ~/.bash_profile
+
+  echo "gem: --no-document" >> ~/.gemrc
+  gem install bundler
+
+  bundle install
+  bundle exec spring binstub --all
+
+  bin/rails db:create
+  bin/rails db:schema:load
+  bin/rails webdrivers:chromedriver:update
+
+  yarn install --ignore-engines
+  bin/rails webpacker:compile
 
 setup: |
-  # yarn install --ignore-engines
-  # bundle install
-  # bin/rails db:migrate
-  # bin/rails webpacker:compile
-  # bin/rails webdrivers:chromedriver:update
+  yarn install --ignore-engines
+  bundle install
+  bin/rails db:migrate
+  bin/rails webpacker:compile
+  bin/rails webdrivers:chromedriver:update
 
 test_suite:
-  command: cat
+  command: bin/rspec
 
   files:
     # - spec/**/*_spec.rb
     - spec/workers/slack/messengers/worker_spec.rb
-    # - spec/workers/slack/messengers/worker_spec.rb
-    # - spec/workers/slack/messengers/worker_spec.rb
-    # - spec/workers/slack/messengers/worker_spec.rb
-    # - spec/workers/slack/messengers/worker_spec.rb
-    # - spec/workers/slack/messengers/worker_spec.rb
-    # - spec/workers/slack/messengers/worker_spec.rb
-    # - spec/workers/slack/messengers/worker_spec.rb
-    # - spec/workers/slack/messengers/worker_spec.rb
-    # - spec/workers/slack/messengers/worker_spec.rb
-    # - spec/workers/slack/messengers/worker_spec.rb
-    # - spec/workers/slack/messengers/worker_spec.rb
-    # - spec/workers/slack/messengers/worker_spec.rb
-    # - spec/workers/slack/messengers/worker_spec.rb
-    # - spec/workers/slack/messengers/worker_spec.rb
-    # - spec/workers/slack/messengers/worker_spec.rb
-    # - spec/workers/slack/messengers/worker_spec.rb
-    # - spec/workers/slack/messengers/worker_spec.rb
-    # - spec/workers/slack/messengers/worker_spec.rb
-    # - spec/workers/slack/messengers/worker_spec.rb
-    # - spec/workers/slack/messengers/worker_spec.rb
-    # - spec/workers/slack/messengers/worker_spec.rb
-    # - spec/workers/slack/messengers/worker_spec.rb
-    # - spec/workers/slack/messengers/worker_spec.rb
-    # - spec/workers/slack/messengers/worker_spec.rb
-    # - spec/workers/slack/messengers/worker_spec.rb
-    # - spec/workers/slack/messengers/worker_spec.rb
-    # - spec/workers/slack/messengers/worker_spec.rb
-    # - spec/workers/slack/messengers/worker_spec.rb
-    # - spec/workers/slack/messengers/worker_spec.rb
-    # - spec/workers/slack/messengers/worker_spec.rb
-    # - spec/workers/slack/messengers/worker_spec.rb
-    # - spec/workers/slack/messengers/worker_spec.rb
-    # - spec/workers/slack/messengers/worker_spec.rb
-    # - spec/workers/slack/messengers/worker_spec.rb
-    # - spec/workers/slack/messengers/worker_spec.rb
-    # - spec/workers/slack/messengers/worker_spec.rb
-    # - spec/workers/slack/messengers/worker_spec.rb
-    # - spec/workers/slack/messengers/worker_spec.rb
-    # - spec/workers/slack/messengers/worker_spec.rb
-    # - spec/workers/slack/messengers/worker_spec.rb
-    # - spec/workers/slack/messengers/worker_spec.rb
-    # - spec/workers/slack/messengers/worker_spec.rb
-    # - spec/workers/slack/messengers/worker_spec.rb
-    # - spec/workers/slack/messengers/worker_spec.rb
-    # - spec/workers/slack/messengers/worker_spec.rb
-    # - spec/workers/slack/messengers/worker_spec.rb
-    # - spec/workers/slack/messengers/worker_spec.rb
-    # - spec/workers/slack/messengers/worker_spec.rb
-    # - spec/workers/slack/messengers/worker_spec.rb
-    # - spec/workers/slack/messengers/worker_spec.rb
-    # - spec/workers/slack/messengers/worker_spec.rb
-    # - spec/workers/slack/messengers/worker_spec.rb
-    # - spec/workers/slack/messengers/worker_spec.rb
-    # - spec/workers/slack/messengers/worker_spec.rb
+    - spec/workers/slack/messengers/worker_spec.rb
+    - spec/workers/slack/messengers/worker_spec.rb
+    - spec/workers/slack/messengers/worker_spec.rb
+    - spec/workers/slack/messengers/worker_spec.rb
+    - spec/workers/slack/messengers/worker_spec.rb
+    - spec/workers/slack/messengers/worker_spec.rb
+    - spec/workers/slack/messengers/worker_spec.rb
+    - spec/workers/slack/messengers/worker_spec.rb
+    - spec/workers/slack/messengers/worker_spec.rb
+    - spec/workers/slack/messengers/worker_spec.rb
+    - spec/workers/slack/messengers/worker_spec.rb
+    - spec/workers/slack/messengers/worker_spec.rb
+    - spec/workers/slack/messengers/worker_spec.rb
+    - spec/workers/slack/messengers/worker_spec.rb
+    - spec/workers/slack/messengers/worker_spec.rb
+    - spec/workers/slack/messengers/worker_spec.rb
+    - spec/workers/slack/messengers/worker_spec.rb
+    - spec/workers/slack/messengers/worker_spec.rb
+    - spec/workers/slack/messengers/worker_spec.rb
+    - spec/workers/slack/messengers/worker_spec.rb
+    - spec/workers/slack/messengers/worker_spec.rb
+    - spec/workers/slack/messengers/worker_spec.rb
+    - spec/workers/slack/messengers/worker_spec.rb
+    - spec/workers/slack/messengers/worker_spec.rb
+    - spec/workers/slack/messengers/worker_spec.rb
+    - spec/workers/slack/messengers/worker_spec.rb
+    - spec/workers/slack/messengers/worker_spec.rb
+    - spec/workers/slack/messengers/worker_spec.rb
+    - spec/workers/slack/messengers/worker_spec.rb
+    - spec/workers/slack/messengers/worker_spec.rb
+    - spec/workers/slack/messengers/worker_spec.rb
+    - spec/workers/slack/messengers/worker_spec.rb
+    - spec/workers/slack/messengers/worker_spec.rb
+    - spec/workers/slack/messengers/worker_spec.rb
+    - spec/workers/slack/messengers/worker_spec.rb
+    - spec/workers/slack/messengers/worker_spec.rb
+    - spec/workers/slack/messengers/worker_spec.rb
+    - spec/workers/slack/messengers/worker_spec.rb
+    - spec/workers/slack/messengers/worker_spec.rb
+    - spec/workers/slack/messengers/worker_spec.rb
+    - spec/workers/slack/messengers/worker_spec.rb
+    - spec/workers/slack/messengers/worker_spec.rb
+    - spec/workers/slack/messengers/worker_spec.rb
+    - spec/workers/slack/messengers/worker_spec.rb
+    - spec/workers/slack/messengers/worker_spec.rb
+    - spec/workers/slack/messengers/worker_spec.rb
+    - spec/workers/slack/messengers/worker_spec.rb
+    - spec/workers/slack/messengers/worker_spec.rb
+    - spec/workers/slack/messengers/worker_spec.rb
+    - spec/workers/slack/messengers/worker_spec.rb
+    - spec/workers/slack/messengers/worker_spec.rb
+    - spec/workers/slack/messengers/worker_spec.rb
+    - spec/workers/slack/messengers/worker_spec.rb
+    - spec/workers/slack/messengers/worker_spec.rb
 
   ignore:
     - spec/factories/**/*.*
