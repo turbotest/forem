@@ -53,8 +53,11 @@ install: |
   echo "gem: --no-document" >> ~/.gemrc
   gem install bundler
 
+  cp .env_sample .env
+
   bundle install
   bundle exec spring binstub --all
+
 
   bin/rails db:create
   bin/rails db:schema:load
@@ -72,10 +75,11 @@ setup: |
   bin/rails webdrivers:chromedriver:update
 
 test_suite:
-  command: bin/rspec
+  command: bin/rspec --no-color
 
   files:
-    - spec/**/*_spec.rb
+    - bin/rspec spec/workers/notifications/moderation_notification_worker_spec.rb 
+    # - spec/**/*_spec.rb
 
   ignore:
     - spec/factories/**/*.*
