@@ -4,7 +4,7 @@ env:
   RAILS_ENV:          test
 
 install: |
-  # clear_cache: fa82e3cf34a60fac533eb968af088635
+  # clear_cache: b89e9e658a04b0fb9f4101b9bba79acb
   echo 'debconf debconf/frontend select Noninteractive' | sudo debconf-set-selections
 
   sudo apt update -y
@@ -66,6 +66,7 @@ install: |
 setup: |
   yarn install --ignore-engines
   bundle install
+  bundle exec spring binstub --all
   bin/rails db:migrate
   bin/rails webpacker:compile
   bin/rails webdrivers:chromedriver:update
