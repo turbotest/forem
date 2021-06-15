@@ -76,7 +76,7 @@ test_suite:
   command: bin/rspec --no-color
 
   files:
-    - bin/rspec spec/workers/notifications/moderation_notification_worker_spec.rb
+    - spec/workers/notifications/moderation_notification_worker_spec.rb
     # - spec/**/*_spec.rb
 
   ignore:
