@@ -77,7 +77,8 @@ test_suite:
 
   files:
     # - spec/services/fastly_config/snippets_spec.rb
-    - spec/**/*_spec.rb
+    # - spec/**/*_spec.rb
+    - spec/models/_spec.rb
 
   ignore:
     - spec/factories/**/*.*
