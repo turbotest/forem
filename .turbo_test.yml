@@ -76,8 +76,8 @@ test_suite:
   command: bin/rspec --no-color
 
   files:
-    # - spec/workers/notifications/moderation_notification_worker_spec.rb
-    - spec/**/*_spec.rb
+    - spec/services/fastly_config/snippets_spec.rb
+    # - spec/**/*_spec.rb
 
   ignore:
     - spec/factories/**/*.*
