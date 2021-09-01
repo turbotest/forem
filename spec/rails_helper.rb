@@ -14,7 +14,7 @@ require "fakeredis/rspec"
 require "pundit/matchers"
 require "pundit/rspec"
 require "sidekiq/testing"
-require "test_prof/factory_prof/nate_heckler"
+require "test_prof/factory_prof/nate_heckler" unless ENV['CI']
 require "validate_url/rspec_matcher"
 require "webmock/rspec"
 
