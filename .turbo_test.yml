@@ -4,7 +4,7 @@ env:
   RAILS_ENV:          test
 
 install: |
-  # clear_cache: 9f2a6ce73b9a18f554b3afcb0159b563
+  # clear_cache: 42de15ab9c971e271aa7a5f73e02ea97
   echo 'debconf debconf/frontend select Noninteractive' | sudo debconf-set-selections
 
   sudo apt update -y
@@ -76,8 +76,8 @@ test_suite:
   command: bin/rspec --no-color
 
   files:
-    # - spec/services/fastly_config/snippets_spec.rb
     - spec/**/*_spec.rb
+    # - spec/services/fastly_config/snippets_spec.rb
     # - spec/models/*_spec.rb
 
   ignore:
