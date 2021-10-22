@@ -1,17 +1,17 @@
 env:
-  COVERAGE:           false
-  DATABASE_URL_TEST:  postgres:///Forem_test
-  RAILS_ENV:          test
-  RUBYOPT:            -W0
-  APP_PROTOCOL: http://
-  APP_DOMAIN: localhost:3000
-  HEROKU_APP_URL: practicaldev.herokuapp.com
-  SECRET_KEY_BASE: dummydummydummy
-  GITHUB_KEY: dummy
-  GITHUB_SECRET: dummy
+  APP_DOMAIN:             localhost:3000
+  APP_PROTOCOL:           http://
+  COVERAGE:               false
   COVERAGE_REPORTS_TOTAL: 0
-  FOREM_OWNER_SECRET: "secret"
-  DISABLE_SPRING: false
+  DATABASE_URL_TEST:      postgres:///Forem_test
+  DISABLE_SPRING:         false
+  FOREM_OWNER_SECRET:     secret
+  GITHUB_KEY:             dummy
+  GITHUB_SECRET:          dummy
+  HEROKU_APP_URL:         practicaldev.herokuapp.com
+  RAILS_ENV:              test
+  RUBYOPT:                '-W:deprecated'
+  SECRET_KEY_BASE:        dummydummydummy
 
 install: |
   # clear_cache: 9a63cfbdcda47ec7f46da5bdcd932b9b
@@ -32,7 +32,7 @@ install: |
     software-properties-common build-essential \
     gcc g++ make cmake unzip libffi-dev \
     libcurl4-openssl-dev libssl-dev zlib1g-dev \
-    postgresql-13 postgresql-contrib libpq-dev \
+    postgresql-12 postgresql-client-12 postgresql-contrib libpq-dev \
     imagemagick \
     redis-server \
     chromium-chromedriver libnss3 xdg-utils google-chrome-stable
