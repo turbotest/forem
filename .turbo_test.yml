@@ -38,12 +38,7 @@ install: |
     chromium-chromedriver libnss3 xdg-utils google-chrome-stable
 
   sudo su postgres -c 'createuser ubuntu --superuser'
-
-  sudo sed -i
-    -e '/local.*peer/s/postgres/all/'
-    -e 's/peer\|md5/trust/g'
-    /etc/postgresql/12/main/pg_hba.conf
-
+  sudo sed -i -e '/local.*peer/s/postgres/all/' -e 's/peer\|md5/trust/g' /etc/postgresql/12/main/pg_hba.conf
   sudo service postgresql restart
 
   bash <( wget -qO- https://raw.githubusercontent.com/nvm-sh/nvm/v0.37.2/install.sh )
