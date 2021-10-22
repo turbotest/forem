@@ -3,6 +3,15 @@ env:
   DATABASE_URL_TEST:  postgres:///Forem_test
   RAILS_ENV:          test
   RUBYOPT:            -W0
+  APP_PROTOCOL: http://
+  APP_DOMAIN: localhost:3000
+  HEROKU_APP_URL: practicaldev.herokuapp.com
+  SECRET_KEY_BASE: dummydummydummy
+  GITHUB_KEY: dummy
+  GITHUB_SECRET: dummy
+  COVERAGE_REPORTS_TOTAL: 0
+  FOREM_OWNER_SECRET: "secret"
+  DISABLE_SPRING: false
 
 install: |
   # clear_cache: 9a63cfbdcda47ec7f46da5bdcd932b9b
@@ -66,7 +75,7 @@ install: |
 
 setup: |
   yarn install --ignore-engines
-  bundle install
+  bundle install --local --jobs 3
   bundle exec spring binstub --all
   bin/rails db:migrate
   bin/rails webpacker:compile
