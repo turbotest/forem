@@ -65,7 +65,6 @@ install: |
   bin/rails webpacker:compile
 
 setup: |
-  cp .env_sample .env
   yarn install --ignore-engines
   bundle install
   bundle exec spring binstub --all
