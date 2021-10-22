@@ -61,16 +61,20 @@ install: |
 
   rvm install "ruby-3.0.2"
 
+  cp .env_sample .env
+
   echo "gem: --no-document" >> ~/.gemrc
   gem install bundler
-  bundle install
+
+  bundle config set path 'vendor/bundle'
+  bundle install --local --jobs 3
   bundle exec spring binstub --all
 
   bin/rails db:create
   bin/rails db:schema:load
   bin/rails webdrivers:chromedriver:update
 
-  yarn install --ignore-engines
+  yarn install --ignore-engines --frozen-lockfile
   bin/rails webpacker:compile
 
 setup: |
