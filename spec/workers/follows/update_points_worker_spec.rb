@@ -46,7 +46,7 @@ RSpec.describe Follows::UpdatePointsWorker, type: :worker do
       expect(follow.implicit_points).to be > first_implicit_score
     end
 
-    it "has higher score with more reactions" do
+    xit "has higher score with more reactions" do
       follow = Follow.last
       worker.perform(reaction.reactable_id, reaction.user_id)
       follow.reload
