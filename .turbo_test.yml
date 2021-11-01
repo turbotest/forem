@@ -79,7 +79,7 @@ install: |
   bundle install --local --jobs 3
   bundle exec spring binstub --all
 
-  bin/rails db:create
+  bin/rails db:create:all
   bin/rails db:schema:load
   bin/rails webdrivers:chromedriver:update
 
