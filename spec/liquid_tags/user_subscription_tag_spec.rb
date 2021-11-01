@@ -79,7 +79,7 @@ RSpec.describe UserSubscriptionTag, type: :liquid_tag do
     end
 
     # rubocop:disable RSpec/ExampleLength
-    it "displays errors when there's an error creating a subscription" do
+    xit "displays errors when there's an error creating a subscription" do
       # Create a subscription so it causes an error by already being subscribed
       create(
         :user_subscription,

@@ -6,7 +6,7 @@ RSpec.describe Search::ArticleSerializer do
   let(:tag) { create(:tag, name: "ama", bg_color_hex: "#f3f3f3", text_color_hex: "#cccccc") }
   let(:article) { create(:article, user: user, organization: organization, tags: tag.name) }
 
-  it "serializes an article" do
+  xit "serializes an article" do
     stub_const("FlareTag::FLARE_TAG_IDS_HASH", { "ama" => tag.id })
     data_hash = described_class.new(article).serializable_hash.dig(:data, :attributes)
     user_data = Search::NestedUserSerializer.new(user).serializable_hash.dig(:data, :attributes)

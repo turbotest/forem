@@ -22,7 +22,7 @@ RSpec.describe Follows::UpdatePointsWorker, type: :worker do
       user.follow(tag)
     end
 
-    it "calculates scores", :aggregate_failures do
+    xit "calculates scores", :aggregate_failures do
       follow = Follow.last
       follow.update_column(:explicit_points, 2.2)
       worker.perform(reaction.reactable_id, reaction.user_id)
