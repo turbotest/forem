@@ -4,6 +4,14 @@ RSpec.describe URL, type: :lib do
   before do
     allow(ApplicationConfig).to receive(:[]).with("APP_PROTOCOL").and_return("https://")
     allow(ApplicationConfig).to receive(:[]).with("APP_DOMAIN").and_return("test.forem.cloud")
+    allow(ApplicationConfig).to receive(:[]).with("DEFAULT_EMAIL")
+    allow(ApplicationConfig).to receive(:[]).with("SMTP_ADDRESS")
+    allow(ApplicationConfig).to receive(:[]).with("SMTP_AUTHENTICATION")
+    allow(ApplicationConfig).to receive(:[]).with("SMTP_DOMAIN")
+    allow(ApplicationConfig).to receive(:[]).with("SMTP_PASSWORD")
+    allow(ApplicationConfig).to receive(:[]).with("SMTP_PORT")
+    allow(ApplicationConfig).to receive(:[]).with("SMTP_USER_NAME")
+
     allow(Settings::General).to receive(:app_domain).and_return("dev.to")
   end
 
@@ -39,7 +47,7 @@ RSpec.describe URL, type: :lib do
   end
 
   describe ".article" do
-    let(:article) { build(:article, path: "/username1/slug") }
+    let!(:article) { build(:article, path: "/username1/slug") }
 
     it "returns the correct URL for an article" do
       expect(described_class.article(article)).to eq("https://dev.to#{article.path}")

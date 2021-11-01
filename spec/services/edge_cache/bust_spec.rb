@@ -4,6 +4,16 @@ RSpec.describe EdgeCache::Bust, type: :service do
   let(:user) { create(:user) }
   let(:path) { "/#{user.username}" }
 
+  before do
+    allow(ApplicationConfig).to receive(:[]).with("DEFAULT_EMAIL")
+    allow(ApplicationConfig).to receive(:[]).with("SMTP_ADDRESS")
+    allow(ApplicationConfig).to receive(:[]).with("SMTP_AUTHENTICATION")
+    allow(ApplicationConfig).to receive(:[]).with("SMTP_DOMAIN")
+    allow(ApplicationConfig).to receive(:[]).with("SMTP_PASSWORD")
+    allow(ApplicationConfig).to receive(:[]).with("SMTP_PORT")
+    allow(ApplicationConfig).to receive(:[]).with("SMTP_USER_NAME")
+  end
+
   context "when passing an Array of paths" do
     let(:fastly_provider_class) { EdgeCache::Bust::Fastly }
 

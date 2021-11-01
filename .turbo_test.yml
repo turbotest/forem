@@ -4,11 +4,17 @@ env:
   COVERAGE:               false
   COVERAGE_REPORTS_TOTAL: 0
   DATABASE_URL_TEST:      postgres:///Forem_test
+  DEFAULT_EMAIL:          yo@dev.to
   DISABLE_SPRING:         false
+  FASTLY_API_KEY:         ''
+  FASTLY_API_KEY:         fake-key
+  FASTLY_SERVICE_ID:      ''
+  FASTLY_SERVICE_ID:      fake-service-id
   FOREM_OWNER_SECRET:     secret
   GITHUB_KEY:             dummy
   GITHUB_SECRET:          dummy
   HEROKU_APP_URL:         practicaldev.herokuapp.com
+  OPENRESTY_URL:          http://localhost:9090
   RAILS_ENV:              test
   RUBYOPT:                '-W:deprecated'
   SECRET_KEY_BASE:        dummydummydummy
@@ -26,6 +32,8 @@ install: |
   wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
   sudo sh -c 'echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google-chrome.list'
 
+  sudo add-apt-repository ppa:redislabs/redis -y
+
   sudo apt update -y
 
   sudo apt install -y \
@@ -34,8 +42,10 @@ install: |
     libcurl4-openssl-dev libssl-dev zlib1g-dev \
     postgresql-12 postgresql-client-12 postgresql-contrib libpq-dev \
     imagemagick \
-    redis-server \
+    redis \
     chromium-chromedriver libnss3 xdg-utils google-chrome-stable
+
+  sudo systemctl enable --now redis-server.service
 
   sudo su postgres -c 'createuser ubuntu --superuser'
   sudo sed -i -e '/local.*peer/s/postgres/all/' -e 's/peer\|md5/trust/g' /etc/postgresql/12/main/pg_hba.conf
