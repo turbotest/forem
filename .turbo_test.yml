@@ -15,7 +15,6 @@ env:
   GITHUB_SECRET:          dummy
   HEROKU_APP_URL:         practicaldev.herokuapp.com
   OPENRESTY_URL:          http://localhost:9090
-  RAILS_ENV:              test
   RUBYOPT:                '-W:deprecated'
   SECRET_KEY_BASE:        dummydummydummy
 
