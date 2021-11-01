@@ -32,7 +32,7 @@ RSpec.describe Follows::UpdatePointsWorker, type: :worker do
       expect(follow.reload.points.round(2)).to eq (follow.implicit_points + follow.explicit_points).round(2)
     end
 
-    it "has higher score with more long page views" do
+    xit "has higher score with more long page views" do
       follow = Follow.last
       worker.perform(reaction.reactable_id, reaction.user_id)
       follow.reload
