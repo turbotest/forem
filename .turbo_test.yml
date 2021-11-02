@@ -82,14 +82,12 @@ install: |
   bin/rails db:schema:load
 
   yarn install --ignore-engines --frozen-lockfile
-  bin/rails webpacker:compile
 
 setup: |
   yarn install --ignore-engines
   bundle install --local --jobs 3
   bundle exec spring binstub --all
   bin/rails db:migrate
-  bin/rails webpacker:compile
 
 test_suite:
   command: bin/rspec --no-color
