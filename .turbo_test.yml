@@ -85,7 +85,7 @@ install: |
 setup: |
   yarn install --ignore-engines
   bundle install --local --jobs 3
-  bin/rails db:migrate
+  RAILS_ENV=test bin/rails db:migrate
 
 test_suite:
   command: bin/rspec --no-color
