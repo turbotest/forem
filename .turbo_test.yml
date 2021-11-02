@@ -46,7 +46,7 @@ install: |
   sudo systemctl enable --now redis-server.service
 
   sudo su postgres -c 'createuser ubuntu --superuser'
-  sudo sed -i -e '/local.*peer/s/postgres/all/' -e 's/peer\|md5/trust/g' /etc/postgresql/14/main/pg_hba.conf
+  sudo sed -i -e 's/scram-sha-256/trust/g' /etc/postgresql/14/main/pg_hba.conf
   sudo service postgresql restart
 
   bash <( wget -qO- https://raw.githubusercontent.com/nvm-sh/nvm/v0.37.2/install.sh )
@@ -77,8 +77,8 @@ install: |
   bundle config set path 'vendor/bundle'
   bundle install --local --jobs 3
 
-  bin/rails db:create:all
-  bin/rails db:schema:load
+  RAILS_ENV=test bin/rails db:create
+  RAILS_ENV=test bin/rails db:schema:load
 
   yarn install --ignore-engines --frozen-lockfile
 
