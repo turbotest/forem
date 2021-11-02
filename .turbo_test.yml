@@ -80,7 +80,7 @@ install: |
   RAILS_ENV=test bin/rails db:create
   RAILS_ENV=test bin/rails db:schema:load
 
-  yarn install --ignore-engines --frozen-lockfile
+  yarn install --ignore-engines --frozen-lockfile --silent
 
 setup: |
   yarn install --ignore-engines
