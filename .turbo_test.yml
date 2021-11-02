@@ -76,7 +76,6 @@ install: |
 
   bundle config set path 'vendor/bundle'
   bundle install --local --jobs 3
-  bundle exec spring binstub --all
 
   bin/rails db:create:all
   bin/rails db:schema:load
@@ -86,7 +85,6 @@ install: |
 setup: |
   yarn install --ignore-engines
   bundle install --local --jobs 3
-  bundle exec spring binstub --all
   bin/rails db:migrate
 
 test_suite:
