@@ -51,7 +51,7 @@
     "@storybook/builder-webpack5": "^6.3.12",
     "@storybook/manager-webpack5": "^6.3.12",
     "@storybook/preact": "^6.3.12",
-    "@testing-library/cypress": "^7.0.7",
+    "@testing-library/cypress": "^8.0.3",
     "@testing-library/dom": "^8.10.1",
     "@testing-library/jest-dom": "^5.15.0",
     "@testing-library/preact": "^2.0.1",
